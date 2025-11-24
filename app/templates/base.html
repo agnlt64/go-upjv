@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Covoiturage{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font.css') }}">
 </head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('main.index') }}">Accueil</a></li>
+
+<body class="h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200">
+        <nav class="w-full px-4 py-3">
+            <ul class="flex justify-center items-center gap-8">
+                <li><a href="{{ url_for('main.index') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.index' %}underline{% endif %}">Accueil</a>
+                </li>
+                <li><a href="{{ url_for('main.login') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.login' %}underline{% endif %}">Connexion</a>
+                </li>
+                <li><a href="{{ url_for('main.sign_up') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.sign_up' %}underline{% endif %}">Inscription</a>
+                </li>
             </ul>
         </nav>
     </header>
 
-    <main>
+    <main class="flex-grow flex flex-col overflow-hidden">
         {% block content %}{% endblock %}
     </main>
-
-    <footer>
-        <p>&copy; 2023 Covoiturage</p>
-    </footer>
 </body>
+
 </html>
