@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Inscription - Covoiturage{% endblock %}
+{% block title %}Inscription - GoUPJV{% endblock %}
 
 {% block content %}
 <div class="flex flex-grow w-full overflow-hidden">
     <div class="w-1/2 flex items-center justify-center bg-white p-8">
         <div class="w-full max-w-md space-y-6">
-            <h2 class="text-3xl font-bold text-gray-900 mb-8">Créer un compte</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Créez votre compte</h2>
 
             <form action="{{ url_for('main.sign_up') }}" method="POST" class="space-y-4">
                {# Nom & Prénom #}
