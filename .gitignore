@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+.env
+.venv/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Flask
+instance/
