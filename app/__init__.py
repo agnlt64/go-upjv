@@ -1,11 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
 
 from config import config, DEFAULT
 
 db = SQLAlchemy()
-load_dotenv()
 
 def create_app(*, config_name: str = DEFAULT) -> Flask:
     app = Flask(__name__)

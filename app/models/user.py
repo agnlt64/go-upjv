@@ -23,7 +23,6 @@ class User(db.Model, UserMixin):
     max_seats = db.Column(db.Integer)
     
     # Métadonnées
-    first_login = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
