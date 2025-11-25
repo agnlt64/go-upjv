@@ -16,12 +16,22 @@
                 <li><a href="{{ url_for('main.index') }}"
                         class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.index' %}underline{% endif %}">Accueil</a>
                 </li>
-                <li><a href="{{ url_for('main.login') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.login' %}underline{% endif %}">Connexion</a>
-                </li>
                 <li><a href="{{ url_for('main.sign_up') }}"
                         class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.sign_up' %}underline{% endif %}">Inscription</a>
                 </li>
+                <li><a href="{{ url_for('main.login') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.login' %}underline{% endif %}">Connexion</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li><a href="{{ url_for('main.logout') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">Déconnexion</a>
+                </li>
+                {% endif %}
+                {% if user.is_admin %}
+                <li><a href="{{ url_for('admin.admin_index') }}"
+                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'admin.admin_index' %}underline{% endif %}">Administration</a>
+                </li>
+                {% endif %}
             </ul>
         </nav>
     </header>
