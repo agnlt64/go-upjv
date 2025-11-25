@@ -2,8 +2,10 @@ from app import create_app, db
 from app.models.user import User
 from werkzeug.security import generate_password_hash
 import random
+import os
+from config import DEV, PROD
 
-app = create_app()
+app = create_app(config_name=PROD if os.getenv('FLASK_ENV') == 'prod' else DEV)
 
 def seed_users(n=10):
     """Generate n random users."""
@@ -41,4 +43,4 @@ def seed_users(n=10):
         print("Seeding complete!")
 
 if __name__ == "__main__":
-    seed_users()
+    seed_users(n=15)
