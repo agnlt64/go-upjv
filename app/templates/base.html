@@ -7,6 +7,8 @@
     <title>{% block title %}Covoiturage{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font.css') }}">
+    {% block styles %}
+    {% endblock %}
 </head>
 
 <body class="h-screen flex flex-col">
@@ -36,9 +38,7 @@
         </nav>
     </header>
 
-    <main class="flex-grow flex flex-col overflow-hidden">
-        {% block content %}{% endblock %}
-    </main>
+    {% block content %}{% endblock %}
 </body>
 
 </html>
