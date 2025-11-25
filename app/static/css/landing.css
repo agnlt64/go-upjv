@@ -1,0 +1,17 @@
+.cta-button {
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(70, 78, 245, 0.3);
+}
+
+.feature-placeholder {
+    background-color: #F3F4F6;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+}

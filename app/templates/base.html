@@ -7,11 +7,14 @@
     <title>{% block title %}Covoiturage{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/colors.css') }}">
+    {% block styles %}
+    {% endblock %}
 </head>
 
 <body class="h-screen flex flex-col">
-    <header class="bg-white border-b border-gray-200">
-        <nav class="w-full px-4 py-3">
+    <header class="fixed top-0 w-full">
+        <nav class="px-4 py-3 rounded-full m-5 bg-white border border-gray-200 shadow-lg">
             <ul class="flex justify-center items-center gap-8">
                 <li><a href="{{ url_for('main.index') }}"
                         class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.index' %}underline{% endif %}">Accueil</a>
@@ -36,9 +39,7 @@
         </nav>
     </header>
 
-    <main class="flex-grow flex flex-col overflow-hidden">
-        {% block content %}{% endblock %}
-    </main>
+    {% block content %}{% endblock %}
 </body>
 
 </html>

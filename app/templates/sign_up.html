@@ -3,13 +3,13 @@
 {% block title %}Inscription - GoUPJV{% endblock %}
 
 {% block content %}
-<div class="flex flex-grow w-full overflow-hidden">
+<main class="flex flex-grow w-full overflow-hidden">
     <div class="w-1/2 flex items-center justify-center bg-white p-8">
         <div class="w-full max-w-md space-y-6">
             <h2 class="text-3xl font-bold text-gray-900 mb-8">Créez votre compte</h2>
 
             <form action="{{ url_for('main.sign_up') }}" method="POST" class="space-y-4">
-               {# Nom & Prénom #}
+            {# Nom & Prénom #}
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <input type="text" id="nom" name="nom" placeholder="Nom" required
@@ -21,7 +21,7 @@
                     </div>
                 </div>
 
-               {# Tel & ID UPJV #}
+            {# Tel & ID UPJV #}
                 <div class="flex gap-4">
                     <div class="w-1/2">
                         <input type="tel" id="tel" name="tel" placeholder="Téléphone" required
@@ -33,28 +33,28 @@
                     </div>
                 </div>
 
-               {# Email #}
+            {# Email #}
                 <div>
                     <input type="email" id="email" name="email" placeholder="Email" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
 
-               {# Password #}
+            {# Password #}
                 <div>
                     <input type="password" id="password" name="password" placeholder="Mot de passe" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
 
-               {# Confirm Password #}
+            {# Confirm Password #}
                 <div>
                     <input type="password" id="confirm_password" name="confirm_password"
                         placeholder="Confirmation du mot de passe" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
 
-               {# Submit Button #}
+            {# Submit Button #}
                 <button type="submit"
-                    class="w-full flex items-center justify-between px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all mt-6 group">
+                    class="w-full flex items-center justify-between px-4 py-2 primary-blue text-white font-medium rounded-lg focus:ring-4 focus:ring-blue-300 transition-all mt-6 group">
                     <span>Créer mon compte</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none"
@@ -68,5 +68,5 @@
     </div>
 
     <img src="{{ url_for('static', filename='media/car.png') }}" alt="Voiture" class="w-1/2 h-full object-cover block">
-</div>
+</main>
 {% endblock %}

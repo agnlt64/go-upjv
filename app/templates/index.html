@@ -1,8 +1,162 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil - Covoiturage{% endblock %}
+{% block title %}Covoiturage IUT - Gratuit & Entre Étudiants{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
 
 {% block content %}
-<h1>Bienvenue sur l'application de Covoiturage</h1>
-<p>Trouvez ou proposez un trajet facilement.</p>
+<!-- Hero Section -->
+<section class="primary-blue text-white py-32 px-6">
+    <div class="max-w-6xl mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            Covoiturez vers l'IUT facilement et gratuitement
+        </h1>
+        <p class="text-xl md:text-2xl mb-10 opacity-90 max-w-3xl mx-auto">
+            Rejoignez notre communauté d'étudiants pour des trajets vers le campus de l'IUT.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('main.sign_up') }}"
+                class="cta-button bg-white text-primary-blue px-10 py-4 rounded-lg font-bold text-lg inline-block hover:bg-gray-50">
+                En route !
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="py-32 px-6 bg-white">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="text-6xl mb-6">🎓</div>
+                <h2 class="text-4xl font-bold mb-6 text-gray-900">100% Entre Étudiants</h2>
+                <p class="text-xl text-gray-600 leading-relaxed mb-6">
+                    Voyagez uniquement avec d'autres étudiants de l'IUT. Une communauté de confiance qui se comprend et
+                    partage les mêmes horaires de cours.
+                </p>
+                <p class="text-lg text-gray-500 leading-relaxed">
+                    Profitez d'un réseau exclusif d'entraide étudiant pour vos trajets quotidiens vers le campus.
+                </p>
+            </div>
+            <div class="feature-placeholder">
+                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 px-6 bg-gray-50">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="feature-placeholder order-2 md:order-1">
+                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="text-6xl mb-6">💰</div>
+                <h2 class="text-4xl font-bold mb-6 text-gray-900">Totalement Gratuit</h2>
+                <p class="text-xl text-gray-600 leading-relaxed mb-6">
+                    Aucun frais, aucune commission. Partagez vos trajets librement et économisez ensemble sur les frais
+                    de transport.
+                </p>
+                <p class="text-lg text-gray-500 leading-relaxed">
+                    Notre plateforme est financée pour rester 100% gratuite afin de faciliter la mobilité des étudiants.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 px-6 bg-white">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="text-6xl mb-6">🚗</div>
+                <h2 class="text-4xl font-bold mb-6 text-gray-900">Vers l'IUT</h2>
+                <p class="text-xl text-gray-600 leading-relaxed mb-6">
+                    Des trajets optimisés pour rejoindre le campus. Arrivez à l'heure à vos cours, ensemble et en toute
+                    simplicité.
+                </p>
+                <p class="text-lg text-gray-500 leading-relaxed">
+                    Recherchez et proposez des trajets directement liés aux horaires de cours pour une organisation
+                    parfaite.
+                </p>
+            </div>
+            <div class="feature-placeholder">
+                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 px-6 bg-gray-50">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="feature-placeholder order-2 md:order-1">
+                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="text-6xl mb-6">✨</div>
+                <h2 class="text-4xl font-bold mb-6 text-gray-900">Simple d'Utilisation</h2>
+                <p class="text-xl text-gray-600 leading-relaxed mb-6">
+                    Interface intuitive et rapide. Trouvez ou proposez un trajet en quelques clics seulement, sans
+                    complications.
+                </p>
+                <p class="text-lg text-gray-500 leading-relaxed">
+                    Conçue spécifiquement pour les étudiants, notre plateforme est facile à prendre en main dès la
+                    première utilisation.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="primary-blue text-white py-32 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">
+            Prêt à commencer votre premier trajet ?
+        </h2>
+        <p class="text-xl mb-8 opacity-90">
+            Rejoignez des centaines d'étudiants qui covoiturent déjà vers l'IUT !
+        </p>
+        <a href="{{ url_for('main.sign_up') }}"
+            class="cta-button bg-white text-primary-blue px-10 py-5 rounded-lg font-bold text-xl inline-block hover:bg-gray-50">
+            Créer un compte gratuitement
+        </a>
+    </div>
+</section>
+
+<footer class="bg-gray-900 text-white py-12 px-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-8 mb-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">GoUPJV</h3>
+                <p class="text-gray-400">
+                    La plateforme de covoiturage gratuite pour les étudiants de l'IUT.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Navigation</h4>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('main.index') }}"
+                            class="text-gray-400 hover:text-white transition-colors">Accueil</a></li>
+                    <li><a href="{{ url_for('main.sign_up') }}"
+                            class="text-gray-400 hover:text-white transition-colors">Inscription</a></li>
+                    <li><a href="{{ url_for('main.login') }}"
+                            class="text-gray-400 hover:text-white transition-colors">Connexion</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4">À propos</h4>
+                <ul class="space-y-2">
+                    <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Fonctionnalités</a>
+                    </li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 GoUPJV - Covoiturage Étudiant. Tous droits réservés.</p>
+        </div>
+    </div>
+</footer>
 {% endblock %}
