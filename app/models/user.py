@@ -24,7 +24,9 @@ class User(db.Model, UserMixin):
     
     # Métadonnées
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # utilisé par les admin pour désactiver un utilisateur
     is_active = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
     
     # Relations
     rides_taken = db.relationship('Ride', secondary=ride_passengers,

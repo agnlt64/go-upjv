@@ -1,0 +1,49 @@
+from flask import Blueprint, render_template, request, jsonify
+from app.models.user import User
+from app import db
+from sqlalchemy import or_, asc, desc
+
+admin = Blueprint('admin', __name__)
+
+@admin.route('/')
+def admin_index():
+    # Get query parameters
+    page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'asc')  # 'asc' or 'desc'
+    search_query = request.args.get('q', '').strip()
+    
+    # Start building the query
+    query = User.query
+    
+    # Apply search filter if search query exists
+    if search_query:
+        search_pattern = f'%{search_query}%'
+        query = query.filter(
+            or_(
+                User.id.like(search_pattern),
+                User.upjv_id.like(search_pattern),
+                User.email.like(search_pattern),
+                User.first_name.like(search_pattern),
+                User.last_name.like(search_pattern),
+                User.phone_number.like(search_pattern),
+                User.vehicle_model.like(search_pattern),
+                User.vehicle_color.like(search_pattern),
+                User.license_plate.like(search_pattern)
+            )
+        )
+    
+    # Apply sorting
+    if sort == 'desc':
+        query = query.order_by(desc(User.id))
+    else:
+        query = query.order_by(asc(User.id))
+    
+    # Paginate (10 users per page)
+    pagination = query.paginate(page=page, per_page=10, error_out=False)
+    
+    return render_template(
+        'admin/index.html',
+        pagination=pagination,
+        sort=sort,
+        search_query=search_query
+    )
