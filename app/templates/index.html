@@ -7,23 +7,18 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="primary-blue text-white py-24 px-6">
+<section class="primary-blue text-white py-32 px-6">
     <div class="max-w-6xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Covoiturez vers l'IUT
-            <span class="block mt-2">100% gratuit</span>
+            Covoiturez vers l'IUT facilement et gratuitement
         </h1>
         <p class="text-xl md:text-2xl mb-10 opacity-90 max-w-3xl mx-auto">
-            La plateforme de covoiturage pensée par et pour les étudiants de l'IUT
+            Rejoignez notre communauté d'étudiants pour des trajets vers le campus de l'IUT.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="{{ url_for('main.sign_up') }}"
                 class="cta-button bg-white text-primary-blue px-10 py-4 rounded-lg font-bold text-lg inline-block hover:bg-gray-50">
-                Commencer maintenant
-            </a>
-            <a href="#features"
-                class="cta-button border-2 border-white text-white px-10 py-4 rounded-lg font-bold text-lg inline-block hover:bg-white hover:text-primary-blue">
-                En savoir plus
+                En route !
             </a>
         </div>
     </div>
@@ -121,7 +116,7 @@
             Prêt à commencer votre premier trajet ?
         </h2>
         <p class="text-xl mb-8 opacity-90">
-            Rejoignez des centaines d'étudiants qui covoiturent déjà vers l'IUT
+            Rejoignez des centaines d'étudiants qui covoiturent déjà vers l'IUT !
         </p>
         <a href="{{ url_for('main.sign_up') }}"
             class="cta-button bg-white text-primary-blue px-10 py-5 rounded-lg font-bold text-xl inline-block hover:bg-gray-50">
