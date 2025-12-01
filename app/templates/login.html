@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import flash_messages %}
 
 {% block title %}Connexion - GoUPJV{% endblock %}
 
@@ -8,22 +9,19 @@
         <div class="w-full max-w-md space-y-6">
             <h2 class="text-3xl font-bold text-gray-900 mb-8">Connexion</h2>
 
-            <form action="{{ url_for('main.login') }}" method="POST" class="space-y-4">
-                <!-- ID UPJV -->
+            <form action="{{ url_for('api.login') }}" method="POST" class="flex flex-col gap-4">
                 <div>
                     <input type="text" id="id_upjv" name="id_upjv" placeholder="ID UPJV" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
-
-                <!-- Password -->
                 <div>
                     <input type="password" id="password" name="password" placeholder="Mot de passe" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
 
-                <!-- Submit Button -->
+                {{ flash_messages() }}
                 <button type="submit"
-                    class="w-full flex items-center justify-between px-4 py-2 primary-blue text-white font-medium rounded-lg focus:ring-4 focus:ring-blue-300 transition-all mt-6 group">
+                    class="w-full flex items-center justify-between px-4 py-2 primary-blue text-white font-medium rounded-lg focus:ring-4 focus:ring-blue-300 transition-all">
                     <span>Se connecter</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none"

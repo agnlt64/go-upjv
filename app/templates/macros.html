@@ -1,0 +1,26 @@
+{% macro logout_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+{% endmacro %}
+
+{% macro user_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round-icon lucide-circle-user-round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+{% endmacro %}
+
+{% macro nav_link(endpoint, label) %}
+<li>
+    <a href="{{ url_for(endpoint) }}"
+        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == endpoint %}underline{% endif %}">{{ label }}</a>
+</li>
+{% endmacro %}
+
+{% macro flash_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="w-full rounded-lg p-2 text-center alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% endmacro %}

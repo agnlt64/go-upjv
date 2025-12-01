@@ -1,3 +1,4 @@
+import string
 from app import create_app, db
 from app.models.user import User
 from werkzeug.security import generate_password_hash
@@ -23,10 +24,10 @@ def seed_users(n=10):
         for i in range(n):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
-            upjv_id = f"{random.randint(20000000, 29999999)}"
+            upjv_id = f"{random.choice(string.ascii_lowercase)}{random.randint(20000000, 29999999)}"
             email = f"{first_name.lower()}.{last_name.lower()}{i}@etud.u-picardie.fr"
             phone_number = f"06{random.randint(10000000, 99999999)}"
-            password = generate_password_hash("password123")
+            password = generate_password_hash("password123*")
             
             user = User(
                 first_name=first_name,
