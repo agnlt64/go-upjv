@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import flash_messages %}
 
 {% block title %}Inscription - GoUPJV{% endblock %}
 
@@ -12,11 +13,11 @@
             {# Nom & Prénom #}
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <input type="text" id="nom" name="nom" placeholder="Nom" required
+                        <input type="text" id="nom" name="nom" placeholder="Nom" value="{{ last_name }}" required
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                     </div>
                     <div class="w-1/2">
-                        <input type="text" id="prenom" name="prenom" placeholder="Prénom" required
+                        <input type="text" id="prenom" name="prenom" placeholder="Prénom" value="{{ first_name }}" required
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                     </div>
                 </div>
@@ -24,18 +25,18 @@
             {# Tel & ID UPJV #}
                 <div class="flex gap-4">
                     <div class="w-1/2">
-                        <input type="tel" id="tel" name="tel" placeholder="Téléphone" required
+                        <input type="tel" id="tel" name="tel" placeholder="Téléphone" value="{{ tel }}" required
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                     </div>
                     <div class="w-1/2">
-                        <input type="text" id="id_upjv" name="id_upjv" placeholder="ID UPJV" required
+                        <input type="text" id="id_upjv" name="id_upjv" placeholder="ID UPJV" value="{{ upjv_id }}" required
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                     </div>
                 </div>
 
             {# Email #}
                 <div>
-                    <input type="email" id="email" name="email" placeholder="Email" required
+                    <input type="email" id="email" name="email" placeholder="Email" value="{{ email }}" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
 
@@ -51,6 +52,8 @@
                         placeholder="Confirmation du mot de passe" required
                         class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                 </div>
+
+            {{ flash_messages() }}
 
             {# Submit Button #}
                 <button type="submit"
