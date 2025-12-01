@@ -1,3 +1,5 @@
+{% from 'macros.html' import logout_icon, user_icon, nav_link %}
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -14,27 +16,28 @@
 
 <body class="h-screen flex flex-col">
     <header class="fixed top-0 w-full">
-        <nav class="px-4 py-3 rounded-full m-5 bg-white border border-gray-200 shadow-lg">
-            <ul class="flex justify-center items-center gap-8">
-                <li><a href="{{ url_for('main.index') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.index' %}underline{% endif %}">Accueil</a>
-                </li>
-                <li><a href="{{ url_for('main.sign_up') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.sign_up' %}underline{% endif %}">Inscription</a>
-                </li>
-                <li><a href="{{ url_for('main.login') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'main.login' %}underline{% endif %}">Connexion</a>
-                </li>
-                {% if user.is_authenticated %}
-                <li><a href="{{ url_for('main.logout') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">Déconnexion</a>
-                </li>
-                {% endif %}
-                {% if user.is_admin %}
-                <li><a href="{{ url_for('admin.admin_index') }}"
-                        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == 'admin.admin_index' %}underline{% endif %}">Administration</a>
-                </li>
-                {% endif %}
+        <nav class="px-8 py-3 rounded-full m-5 bg-white border border-gray-200 shadow-lg">
+            <ul class="flex justify-between items-center">
+                <div>
+                    {% if user.is_authenticated %}
+                        {{ nav_link('main.logout', logout_icon()) }}
+                    {% endif %}
+                </div>
+                <div class="flex gap-8">
+                    {{ nav_link('main.index', 'Accueil') }}
+                    {% if not user.is_authenticated %}
+                        {{ nav_link('main.sign_up', 'Inscription') }}
+                        {{ nav_link('main.login', 'Connexion') }}
+                    {% endif %}
+                    {% if user.is_admin %}
+                        {{ nav_link('admin.admin_index', 'Administration') }}
+                    {% endif %}
+                </div>
+                <div>
+                    {% if user.is_authenticated %}
+                        {{ nav_link('main.user_profile', user_icon()) }}
+                    {% endif %}
+                </div>
             </ul>
         </nav>
     </header>
