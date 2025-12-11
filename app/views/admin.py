@@ -25,10 +25,7 @@ def admin_index():
                 User.email.like(search_pattern),
                 User.first_name.like(search_pattern),
                 User.last_name.like(search_pattern),
-                User.phone_number.like(search_pattern),
-                User.vehicle_model.like(search_pattern),
-                User.vehicle_color.like(search_pattern),
-                User.license_plate.like(search_pattern)
+                User.phone_number.like(search_pattern)
             )
         )
     
