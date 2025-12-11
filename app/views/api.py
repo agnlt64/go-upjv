@@ -37,6 +37,9 @@ def login():
     
     user = User.query.filter_by(upjv_id=upjv_id).first()
     if user:
+        if not user.is_active:
+            flash('Your account was deactivated', 'error')
+            return render_template('login.html', upjv_id=upjv_id)
         if check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('main.user_profile'))
