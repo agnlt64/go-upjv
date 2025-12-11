@@ -1,9 +1,10 @@
 import string
 from app import create_app, db
-from app.models.user import User
+from app.models import User, Vehicle, Location, Ride, Review
 from werkzeug.security import generate_password_hash
 import random
 import os
+from datetime import datetime, timedelta
 from config import DEV, PROD
 
 app = create_app(config_name=PROD if os.getenv('FLASK_ENV') == 'prod' else DEV)
@@ -21,6 +22,7 @@ def seed_users(n=10):
             print("Users already exist. Skipping seeding.")
             return
 
+        users = []
         for i in range(n):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
@@ -39,9 +41,243 @@ def seed_users(n=10):
             )
             
             db.session.add(user)
+            users.append(user)
         
         db.session.commit()
-        print("Seeding complete!")
+        print(f"Seeded {n} users!")
+        return users
+
+def seed_locations(n=10):
+    """Generate n locations."""
+    print(f"Seeding {n} locations...")
+    
+    with app.app_context():
+        if Location.query.count() > 0:
+            print("Locations already exist. Skipping seeding.")
+            return
+        
+        # Campus and popular locations in Amiens
+        locations_data = [
+            {"name": "Campus UPJV - Citadelle", "lat": 49.8942, "lon": 2.2958, "desc": "Campus principal de l'UPJV"},
+            {"name": "Gare d'Amiens", "lat": 49.8906, "lon": 2.3036, "desc": "Gare SNCF d'Amiens"},
+            {"name": "Centre-ville Amiens", "lat": 49.8941, "lon": 2.2958, "desc": "Centre-ville d'Amiens"},
+            {"name": "Campus UPJV - Teinturerie", "lat": 49.8892, "lon": 2.3042, "desc": "Campus UFR Sciences"},
+            {"name": "IUT Amiens", "lat": 49.8990, "lon": 2.3180, "desc": "IUT d'Amiens"},
+            {"name": "Pôle Jules Verne", "lat": 49.8547, "lon": 2.2797, "desc": "Zone commerciale"},
+            {"name": "Hôpital Nord", "lat": 49.9102, "lon": 2.3214, "desc": "CHU Amiens-Picardie"},
+            {"name": "Parc Saint-Pierre", "lat": 49.8889, "lon": 2.2906, "desc": "Parc urbain"},
+            {"name": "Cathédrale d'Amiens", "lat": 49.8946, "lon": 2.3021, "desc": "Monument historique"},
+            {"name": "Université - Pôle Santé", "lat": 49.8930, "lon": 2.3130, "desc": "Pôle santé UPJV"}
+        ]
+        
+        locations = []
+        for loc_data in locations_data[:n]:
+            location = Location(**loc_data)
+            db.session.add(location)
+            locations.append(location)
+        
+        db.session.commit()
+        print(f"Seeded {len(locations)} locations!")
+        return locations
+
+def seed_vehicles(users, ratio=0.6):
+    """Generate vehicles for a ratio of users."""
+    print(f"Seeding vehicles for {int(len(users) * ratio)} users...")
+    
+    with app.app_context():
+        if Vehicle.query.count() > 0:
+            print("Vehicles already exist. Skipping seeding.")
+            return
+        
+        models = ["Peugeot 208", "Renault Clio", "Citroën C3", "Volkswagen Golf", "Ford Fiesta", 
+                  "Toyota Yaris", "Opel Corsa", "Fiat 500", "Mini Cooper", "Audi A3"]
+        colors = ["Blanc", "Noir", "Gris", "Rouge", "Bleu", "Vert", "Argent"]
+        
+        vehicles = []
+        # Give vehicles to a subset of users
+        users_with_vehicles = random.sample(users, int(len(users) * ratio))
+        
+        for user in users_with_vehicles:
+            # Generate unique license plate
+            license_plate = f"{random.choice(string.ascii_uppercase)}{random.choice(string.ascii_uppercase)}-{random.randint(100, 999)}-{random.choice(string.ascii_uppercase)}{random.choice(string.ascii_uppercase)}"
+            
+            vehicle = Vehicle(
+                model=random.choice(models),
+                color=random.choice(colors),
+                licence_plate=license_plate,
+                max_seats=random.randint(3, 5),
+                owner_id=user.id
+            )
+            
+            db.session.add(vehicle)
+            vehicles.append(vehicle)
+        
+        db.session.commit()
+        print(f"Seeded {len(vehicles)} vehicles!")
+        return vehicles
+
+def seed_rides(users, locations, n=20):
+    """Generate n rides."""
+    print(f"Seeding {n} rides...")
+    
+    with app.app_context():
+        if Ride.query.count() > 0:
+            print("Rides already exist. Skipping seeding.")
+            return
+        
+        # Only users with vehicles can be drivers
+        users_with_vehicles = [user for user in users if user.vehicle is not None]
+        
+        if not users_with_vehicles:
+            print("No users with vehicles. Cannot create rides.")
+            return []
+        
+        rides = []
+        now = datetime.utcnow()
+        
+        for i in range(n):
+            driver = random.choice(users_with_vehicles)
+            start_loc = random.choice(locations)
+            end_loc = random.choice([loc for loc in locations if loc.id != start_loc.id])
+            
+            # Random date within next 30 days
+            days_ahead = random.randint(0, 30)
+            hours_ahead = random.randint(0, 23)
+            ride_date = now + timedelta(days=days_ahead, hours=hours_ahead)
+            
+            ride = Ride(
+                date=ride_date,
+                seats=random.randint(1, driver.vehicle.max_seats - 1),  # At least 1 seat available
+                driver_id=driver.id,
+                start_location_id=start_loc.id,
+                end_location_id=end_loc.id
+            )
+            
+            db.session.add(ride)
+            rides.append(ride)
+        
+        db.session.commit()
+        print(f"Seeded {len(rides)} rides!")
+        return rides
+
+def seed_reservations(rides, users, avg_passengers=2):
+    """Add passengers to rides."""
+    print(f"Seeding reservations...")
+    
+    with app.app_context():
+        reservation_count = 0
+        
+        for ride in rides:
+            # Don't book passengers on rides with no available seats
+            if ride.seats == 0:
+                continue
+            
+            # Random number of passengers (but not more than available seats)
+            num_passengers = random.randint(0, min(ride.seats, avg_passengers))
+            
+            # Get users who are not the driver
+            potential_passengers = [user for user in users if user.id != ride.driver_id]
+            
+            if potential_passengers:
+                passengers = random.sample(potential_passengers, min(num_passengers, len(potential_passengers)))
+                ride.passengers.extend(passengers)
+                reservation_count += len(passengers)
+        
+        db.session.commit()
+        print(f"Seeded {reservation_count} reservations!")
+
+def seed_reviews(rides, ratio=0.5):
+    """Generate reviews for completed rides."""
+    print(f"Seeding reviews...")
+    
+    with app.app_context():
+        if Review.query.count() > 0:
+            print("Reviews already exist. Skipping seeding.")
+            return
+        
+        reviews = []
+        now = datetime.utcnow()
+        
+        # Only review rides that are in the past
+        past_rides = [ride for ride in rides if ride.date < now]
+        
+        # Review a subset of past rides
+        rides_to_review = random.sample(past_rides, min(int(len(past_rides) * ratio), len(past_rides)))
+        
+        comments = [
+            "Super trajet, conducteur très sympa !",
+            "Ponctuel et agréable, je recommande.",
+            "Voiture propre, conduite sûre.",
+            "Belle expérience, à refaire.",
+            "RAS, tout s'est bien passé.",
+            "Conducteur bavard mais sympathique.",
+            "Trajet rapide et efficace.",
+            "Merci pour le covoiturage !",
+            "Conduite un peu sportive mais ça va.",
+            "Parfait, rien à redire."
+        ]
+        
+        for ride in rides_to_review:
+            # Passengers review the driver
+            for passenger in ride.passengers:
+                review = Review(
+                    content=random.choice(comments),
+                    rating=random.randint(3, 5),  # Most reviews are positive
+                    ride_id=ride.id,
+                    author_id=passenger.id,
+                    target_id=ride.driver_id
+                )
+                db.session.add(review)
+                reviews.append(review)
+            
+            # Sometimes driver reviews passengers too
+            if random.random() < 0.3 and ride.passengers:  # 30% chance
+                passenger_to_review = random.choice(ride.passengers)
+                review = Review(
+                    content=random.choice(comments),
+                    rating=random.randint(3, 5),
+                    ride_id=ride.id,
+                    author_id=ride.driver_id,
+                    target_id=passenger_to_review.id
+                )
+                db.session.add(review)
+                reviews.append(review)
+        
+        db.session.commit()
+        print(f"Seeded {len(reviews)} reviews!")
+        return reviews
+
+def seed_all():
+    """Seed all data in order."""
+    print("Starting database seeding...")
+    
+    with app.app_context():
+        users = seed_users(n=15)
+        
+    with app.app_context():
+        # Re-query users to get them in this context
+        users = User.query.all()
+        locations = seed_locations(n=10)
+        
+    with app.app_context():
+        users = User.query.all()
+        vehicles = seed_vehicles(users, ratio=0.6)
+        
+    with app.app_context():
+        users = User.query.all()
+        locations = Location.query.all()
+        rides = seed_rides(users, locations, n=20)
+        
+    with app.app_context():
+        rides = Ride.query.all()
+        users = User.query.all()
+        seed_reservations(rides, users, avg_passengers=2)
+        
+    with app.app_context():
+        rides = Ride.query.all()
+        seed_reviews(rides, ratio=0.5)
+    
+    print("\n✅ Database seeding complete!")
 
 if __name__ == "__main__":
-    seed_users(n=15)
+    seed_all()
