@@ -3,5 +3,15 @@
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h1>page profil</h1>
+<div class="container mx-auto px-4 my-[6rem]">
+    <h1 class="text-2xl font-bold mb-4">Profil</h1>
+    <p>Voici vos informations</p>
+    <div>
+        <p>nom: {{ user.last_name }}</p>
+        <p>prénom: {{ user.first_name }}</p>
+        <p>tel: {{ user.phone_number }}</p>
+        <p>upjv_id: {{ user.upjv_id }}</p>
+        <p>email: {{ user.email }}</p>
+    </div>
+</div>
 {% endblock %}

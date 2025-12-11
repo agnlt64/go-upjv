@@ -1,4 +1,4 @@
-{% from 'macros.html' import logout_icon, user_icon, nav_link %}
+{% from 'macros.html' import logout_icon, user_icon, nav_link, logo %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -6,8 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Covoiturage{% endblock %}</title>
-    <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+    <title>{% block title %}GoUPJV{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='media/favicon.svg') }}" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/colors.css') }}">
@@ -23,13 +23,18 @@
                 <div>
                     {% if user.is_authenticated %}
                         {{ nav_link('main.logout', logout_icon()) }}
+                    {% else %}
+                        {{ nav_link('main.index', logo()) }}
                     {% endif %}
                 </div>
                 <div class="flex gap-8">
-                    {{ nav_link('main.index', 'Accueil') }}
                     {% if not user.is_authenticated %}
                         {{ nav_link('main.sign_up', 'Inscription') }}
                         {{ nav_link('main.login', 'Connexion') }}
+                    {% else %}
+                        {{ nav_link('main.search_ride', 'Rechercher un trajet') }}
+                        {{ nav_link('main.offer_ride', 'Proposer un trajet') }}
+                        {{ nav_link('main.my_reservations', 'Mes réservations') }}
                     {% endif %}
                     {% if user.is_admin %}
                         {{ nav_link('admin.admin_index', 'Administration') }}

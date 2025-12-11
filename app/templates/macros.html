@@ -13,6 +13,10 @@
 </li>
 {% endmacro %}
 
+{% macro logo() %}
+<img src="{{ url_for('static', filename='media/logo.svg') }}" alt="Logo">
+{% endmacro %}
+
 {% macro flash_messages() %}
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -23,4 +27,22 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
+{% endmacro %}
+
+{% macro ride(item) %}
+<div class="flex gap-2">
+    <div class="bg-red-400 rounded-lg">
+        {{ item.date }}
+    </div>
+    <div class="bg-blue-400 rounded-lg">
+        <div class="flex flex-col">
+            <span>Nom du chauffeur</span>
+            <span>{{ item.driver.first_name }} {{ item.driver.last_name }}</span>
+        </div>
+        <div class="flex flex-col">
+            <span>Nom du chauffeur</span>
+            <span>{{ item.driver.first_name }} {{ item.driver.last_name }}</span>
+        </div>
+    </div>
+</div>
 {% endmacro %}
