@@ -13,6 +13,10 @@
 </li>
 {% endmacro %}
 
+{% macro logo() %}
+<img src="{{ url_for('static', filename='media/logo.svg') }}" alt="Logo">
+{% endmacro %}
+
 {% macro flash_messages() %}
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -23,4 +27,34 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
+{% endmacro %}
+
+{% macro ride_field(label, value) %}
+<div class="flex flex-col">
+    <span>{{ label }}</span>
+    <span class="text-black">{{ value }}</span>
+</div>
+{% endmacro %}
+
+{% macro ride(item) %}
+<div class="flex gap-2">
+    <div class="bg-stone-200 shadow-lg rounded-lg text-xl flex flex-col items-center justify-center py-4 px-10 text-black font-bold">
+        <span>{{ item.get_month() }}</span>
+        <span class="text-indigo-500">{{ item.get_day() }}</span>
+        <span>{{ item.get_year() }}</span>
+    </div>
+    <div class="bg-indigo-500 shadow-lg text-gray-400 rounded-lg grid grid-rows-2 gap-4 p-4">
+        <div class="flex gap-6 items-center">
+            {{ ride_field("Nom du chauffeur", item.driver.to_str()) }}
+            {{ ride_field("Heure de départ", item.get_departure_time()) }}
+            {{ ride_field("Heure d'arrivée", item.get_arrival_time()) }}
+        </div>
+        <div class="flex gap-6">
+            {{ ride_field("Places disponibles", item.seats) }}
+            {{ ride_field("Point de rendez-vous", item.start_location.name) }}
+            {{ ride_field("Destination", item.end_location.name) }}
+        </div>
+        <button class="underline w-fit">Voir tous les passagers</button>
+    </div>
+</div>
 {% endmacro %}

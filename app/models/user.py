@@ -27,3 +27,9 @@ class User(db.Model, UserMixin):
 
     reviews_written = db.relationship('Review', foreign_keys='Review.author_id', back_populates='author')
     reviews_received = db.relationship('Review', foreign_keys='Review.target_id', back_populates='target')
+    
+    def __repr__(self):
+        return f"<User {self.first_name} {self.last_name} ({self.upjv_id} - {self.email})>"
+    
+    def to_str(self):
+        return f"{self.first_name} {self.last_name}"
