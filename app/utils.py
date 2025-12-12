@@ -1,5 +1,9 @@
 from flask import jsonify
+
+from math import radians, sin, cos, sqrt, atan2
 import re
+
+from app.models.location import Location
 
 UPJV_ID_REGEX = r'^[a-zA-Z][0-9]{8}$'
 PASSWORD_REGEX = r'^(?=.*[a-zA-Z])(?!.*\s)(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
@@ -29,3 +33,28 @@ def check_upjv_id(upjv_id: str):
 
 def check_phone(phone: str):
     return re.match(PHONE_REGEX, phone)
+
+def distance(from_: Location, to: Location) -> float:
+    R = 6371.0
+    lat1 = from_.lat
+    lon1 = from_.lon
+    lat2 = to.lat
+    lon2 = to.lon
+
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+
+    a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c
+    return distance
+
+def int_to_month(n: int) -> str:
+    months = [
+        "JAN", "FEV", "MAR", "AVR", "MAI", "JUN",
+        "JUI", "AOUT", "SEP", "OCT", "NOV", "DEC"
+    ]
+    if 1 <= n <= 12:
+        return months[n - 1]
+    return ""
