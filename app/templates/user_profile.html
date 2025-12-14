@@ -1,17 +1,327 @@
 {% extends 'base.html' %}
+{% from "macros.html" import flash_messages, edit_icon, trash_icon %}
 
-{% block title %}Profil{% endblock %}
+{% block title %}Profil - GoUPJV{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 my-[6rem]">
-    <h1 class="text-2xl font-bold mb-4">Profil</h1>
-    <p>Voici vos informations</p>
-    <div>
-        <p>nom: {{ user.last_name }}</p>
-        <p>prénom: {{ user.first_name }}</p>
-        <p>tel: {{ user.phone_number }}</p>
-        <p>upjv_id: {{ user.upjv_id }}</p>
-        <p>email: {{ user.email }}</p>
+<main class="flex-grow w-full bg-gray-50 pt-[6rem] pb-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Mon Profil</h1>
+            <p class="text-gray-600 mt-2">Gérez vos informations personnelles et votre véhicule</p>
+        </div>
+
+        {{ flash_messages() }}
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Informations personnelles</h2>
+                <button id="editProfileBtn" type="button"
+                    class="p-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all">
+                    {{ edit_icon() }}
+                </button>
+            </div>
+
+            <form action="{{ url_for('api.update_profile') }}" method="PATCH" id="profileForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Prénom <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required
+                            disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nom <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required
+                            disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label for="upjv_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            ID UPJV <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="upjv_id" name="upjv_id" value="{{ user.upjv_id }}" required disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
+                            Numéro de téléphone
+                        </label>
+                        <input type="tel" id="phone_number" name="phone_number"
+                            value="{{ user.phone_number if user.phone_number else '' }}" disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Informations du compte</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Membre depuis</p>
+                            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Statut du compte</p>
+                            <p class="text-sm font-medium">
+                                {% if user.is_admin %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">
+                                    Admin
+                                </span>
+                                {% elif user.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Actif
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Inactif
+                                </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profileActions" class="hidden mt-6 flex gap-3">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all">
+                        Enregistrer les modifications
+                    </button>
+                    <button type="button" id="cancelProfileBtn"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Mon Véhicule</h2>
+                {% if user.vehicle %}
+                <button id="editVehicleBtn" type="button"
+                    class="p-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all">
+                    {{ edit_icon() }}
+                </button>
+                {% endif %}
+            </div>
+
+            {% if user.vehicle %}
+            <div id="vehicleDisplay">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Modèle</p>
+                        <p class="font-medium text-gray-900">{{ user.vehicle.model }}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Couleur</p>
+                        <p class="font-medium text-gray-900">{{ user.vehicle.color if user.vehicle.color else '-' }}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Immatriculation</p>
+                        <p class="font-medium text-gray-900">{{ user.vehicle.licence_plate }}</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Places disponibles</p>
+                        <p class="font-medium text-gray-900">{{ user.vehicle.max_seats }}</p>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('api.delete_vehicle') }}" method="POST" class="mt-6 pt-6 border-t border-gray-200 flex justify-end">
+                    <button type="submit" id="deleteVehicleBtn"
+                        class="p-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-all">
+                        {{ trash_icon() }}
+                    </button>
+                </form>
+            </div>
+
+            <form action="{{ url_for('api.update_vehicle') }}" method="PATCH" id="vehicleForm" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="vehicle_model" class="block text-sm font-medium text-gray-700 mb-2">
+                            Modèle <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="vehicle_model" name="model" value="{{ user.vehicle.model }}" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="vehicle_color" class="block text-sm font-medium text-gray-700 mb-2">
+                            Couleur
+                        </label>
+                        <input type="text" id="vehicle_color" name="color"
+                            value="{{ user.vehicle.color if user.vehicle.color else '' }}"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="vehicle_licence_plate" class="block text-sm font-medium text-gray-700 mb-2">
+                            Plaque d'immatriculation <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="vehicle_licence_plate" name="licence_plate"
+                            value="{{ user.vehicle.licence_plate }}" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="vehicle_max_seats" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre de places <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="vehicle_max_seats" name="max_seats" value="{{ user.vehicle.max_seats }}"
+                            min="1" max="8" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-3">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all">
+                        Enregistrer les modifications
+                    </button>
+                    <button type="button" id="cancelVehicleBtn"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+
+            {% else %}
+            <div id="noVehicle">
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <p class="text-gray-600 mb-4">Vous n'avez pas encore ajouté de véhicule</p>
+                    <button type="button" id="addVehicleBtn"
+                        class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all">
+                        Ajouter un véhicule
+                    </button>
+                </div>
+            </div>
+
+            <form action="{{ url_for('api.add_vehicle') }}" method="POST" id="addVehicleForm" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="new_vehicle_model" class="block text-sm font-medium text-gray-700 mb-2">
+                            Modèle <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="new_vehicle_model" name="model" required placeholder="Ex: Renault Clio"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="new_vehicle_color" class="block text-sm font-medium text-gray-700 mb-2">
+                            Couleur
+                        </label>
+                        <input type="text" id="new_vehicle_color" name="color" placeholder="Ex: Noir"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="new_vehicle_licence_plate" class="block text-sm font-medium text-gray-700 mb-2">
+                            Plaque d'immatriculation <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="new_vehicle_licence_plate" name="licence_plate" required
+                            placeholder="Ex: AB-123-CD"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="new_vehicle_max_seats" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre de places <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="new_vehicle_max_seats" name="max_seats" min="1" max="8" required
+                            placeholder="Ex: 4"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-3">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all">
+                        Ajouter le véhicule
+                    </button>
+                    <button type="button" id="cancelAddVehicleBtn"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Mot de passe</h2>
+                <button id="changePasswordBtn" type="button"
+                    class="p-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all">
+                    {{ edit_icon() }}
+                </button>
+            </div>
+
+            <div id="passwordDisplay">
+                <p class="text-gray-600">••••••••••</p>
+            </div>
+
+            <form action="{{ url_for('api.change_password') }}" method="POST" id="passwordForm" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Mot de passe actuel <span class="text-red-500">*</span>
+                        </label>
+                        <input type="password" id="current_password" name="current_password" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nouveau mot de passe <span class="text-red-500">*</span>
+                        </label>
+                        <input type="password" id="new_password" name="new_password" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="confirm_new_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Confirmer le nouveau mot de passe <span class="text-red-500">*</span>
+                        </label>
+                        <input type="password" id="confirm_new_password" name="confirm_new_password" required
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-3">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all">
+                        Changer le mot de passe
+                    </button>
+                    <button type="button" id="cancelPasswordBtn"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all">
+                        Annuler
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/user_profile.js') }}"></script>
 {% endblock %}

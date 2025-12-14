@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request, flash
 
 from math import radians, sin, cos, sqrt, atan2
 import re
@@ -10,14 +10,19 @@ PASSWORD_REGEX = r'^(?=.*[a-zA-Z])(?!.*\s)(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{
 EMAIL_REGEX = r'^[a-zA-Z]+\.[a-zA-Z]+@([a-zA-Z0-9-]+\.)?u-picardie\.fr$'
 PHONE_REGEX = r'^[0-9]{10}$'
 
-def error(message: str):
+LICENCE_PLATE_1 = r'^[A-HJ-NP-TV-Z]{2}-[0-9]{3}-[A-HJ-NP-TV-Z]{2}$'
+LICENCE_PLATE_2 = r'^[0-9]{1,4} [A-Z]{1,3} [0-9]{2}$'
+
+def error(message: str, status=500):
     return jsonify({
+        'status': status,
         'success': False,
         'message': message
     })
 
 def success(message: str):
     return jsonify({
+        'status': 200,
         'success': True,
         'message': message
     })
@@ -33,6 +38,9 @@ def check_upjv_id(upjv_id: str):
 
 def check_phone(phone: str):
     return re.match(PHONE_REGEX, phone)
+
+def check_licence_plate(licence_plate: str):
+    return re.match(LICENCE_PLATE_1, licence_plate) or re.match(LICENCE_PLATE_2, licence_plate)
 
 def distance(from_: Location, to: Location) -> float:
     R = 6371.0
@@ -58,3 +66,62 @@ def int_to_month(n: int) -> str:
     if 1 <= n <= 12:
         return months[n - 1]
     return ""
+
+def update(what, to):
+    for key, value in to.__dict__.items():
+        if not key.startswith('_') and key != 'id':
+            setattr(what, key, value)
+
+def user_from_request():
+    from app.models.user import User
+    
+    last_name = request.form.get('last_name')
+    first_name = request.form.get('first_name')
+    tel = request.form.get('phone_number')
+    upjv_id = request.form.get('upjv_id')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    
+    user = User(last_name=last_name,
+                first_name=first_name,
+                phone_number=tel,
+                upjv_id=upjv_id,
+                email=email)
+    
+    if tel and not check_phone(tel):
+        flash('Invalid phone number', 'error')
+        user.phone_number = ''
+    if upjv_id and not check_upjv_id(upjv_id):
+        flash('Invalid UPJV ID', 'error')
+        user.upjv_id = ''
+    if email and not check_email(email):
+        flash('Invalid email', 'error')
+        user.email = ''
+    if password and not check_password(password):
+        flash('Password doesn\'t match requirements', 'error')
+
+    return user
+
+def vehicle_from_request():
+    from app.models.vehicle import Vehicle
+    
+    model = request.form.get('model')
+    color = request.form.get('color')
+    licence_plate = request.form.get('licence_plate')
+    max_seats = request.form.get('max_seats')
+    
+    vehicle = Vehicle(model=model,
+                      color=color,
+                      licence_plate=licence_plate)
+    
+    if licence_plate and not check_licence_plate(licence_plate):
+        flash('Invalid licence plate', 'error')
+        vehicle.licence_plate = ''
+    
+    try:
+        vehicle.max_seats = int(max_seats)
+    except (ValueError, TypeError):
+        flash('Max seats must be a number', 'error')
+        vehicle.max_seats = None
+    
+    return vehicle

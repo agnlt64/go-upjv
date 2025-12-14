@@ -1,12 +1,17 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, redirect, flash, url_for
 from app.models.user import User
 from app import db
 from sqlalchemy import or_, asc, desc
+from flask_login import login_required, current_user
 
 admin = Blueprint('admin', __name__)
 
 @admin.route('/')
+@login_required
 def admin_index():
+    if not current_user.is_admin:
+        flash('Unauthorized access', 'error')
+        return redirect(url_for('main.index'))
     # Get query parameters
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'asc')  # 'asc' or 'desc'
