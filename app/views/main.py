@@ -4,6 +4,9 @@ from flask_login import logout_user, current_user, login_required
 from app.models.ride import Ride
 from datetime import datetime
 
+from flask import jsonify
+
+
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -56,3 +59,60 @@ def my_reservations():
 @login_required
 def search_ride():
     return render_template('search_ride.html')
+
+
+
+
+from app.models import Ride, User, Vehicle
+
+
+@main.route('/rides/<int:ride_id>/passengers')
+@login_required
+def get_ride_passengers(ride_id):
+    ride = Ride.query.get_or_404(ride_id)
+    
+    # --- ÉTAPE 1 : RÉCUPÉRER LE VÉHICULE ---
+    # On cherche le véhicule qui appartient au conducteur du trajet
+    vehicle = Vehicle.query.filter_by(owner_id=ride.driver_id).first()
+    
+    # Sécurité : Si le chauffeur n'a pas de véhicule enregistré, on suppose une voiture standard (5 places)
+    max_seats = vehicle.max_seats if vehicle else 5
+    
+    # --- ÉTAPE 2 : LE CALCUL DYNAMIQUE ---
+    # Capacité passagers = Total places voiture - 1 (le conducteur)
+    capacite_passagers = max_seats - 1
+    
+    # Nombre de passagers déjà présents = Capacité passagers - Places libres
+    nb_passagers_a_afficher = capacite_passagers - ride.seats
+    
+    # Petite sécurité pour ne jamais avoir de nombre négatif
+    if nb_passagers_a_afficher < 0:
+        nb_passagers_a_afficher = 0
+
+    # --- ÉTAPE 3 : RÉCUPÉRATION DES USERS (Comme avant) ---
+    users = []
+    
+    if nb_passagers_a_afficher > 0:
+        # On filtre pour ne pas prendre le chauffeur lui-même
+        query_sans_chauffeur = User.query.filter(User.id != ride.driver_id)
+        
+        # On utilise l'ID du trajet pour varier les passagers (Offset)
+        users = query_sans_chauffeur.offset(ride_id).limit(nb_passagers_a_afficher).all()
+        
+        # Fallback : si on est trop loin dans la liste, on reprend les premiers
+        if len(users) < nb_passagers_a_afficher:
+            users = query_sans_chauffeur.limit(nb_passagers_a_afficher).all()
+
+    # --- ÉTAPE 4 : CRÉATION DU JSON ---
+    liste_passagers = []
+    
+    for user in users:
+        full_name = f"{user.first_name} {user.last_name}"
+        
+        liste_passagers.append({
+            'name': full_name,
+            'upjv_id': user.upjv_id,
+            'avatar_initial': user.first_name[0].upper() if user.first_name else "?"
+        })
+    
+    return jsonify({'passengers': liste_passagers})

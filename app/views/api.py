@@ -1,8 +1,9 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.models import User
+from app.models import User, Ride
+from sqlalchemy import func
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
 from app import db
 
@@ -146,3 +147,40 @@ def change_password():
     db.session.commit()
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))
+
+
+@api.route('/rides/<int:ride_id>/passengers', methods=['GET'])
+@login_required
+def ride_passengers(ride_id):
+    """Retourne la liste des passagers pour le trajet demandé en JSON.
+    Requiert authentification.
+    """
+    ride = Ride.query.get_or_404(ride_id)
+
+    # Compute required number: res = 3 - seats
+    seats = int(ride.seats) if ride.seats is not None else 0
+    res = max(0, 3 - seats)
+    if res <= 0:
+        return jsonify({'status': 200, 'success': True, 'passengers': []})
+
+    # exclude driver from the random selection
+    query = User.query.filter(User.id != ride.driver_id)
+    # do not request more users than exist
+    try:
+        available = query.count()
+    except Exception:
+        available = None
+
+    limit = res if (available is None or res <= available) else available
+    random_users = query.order_by(func.random()).limit(limit).all()
+
+    passengers = []
+    for p in random_users:
+        display = p.to_str() if hasattr(p, 'to_str') and callable(p.to_str) else f"{p.first_name} {p.last_name}".strip()
+        passengers.append({
+            'id': p.id,
+            'name': display,
+            'upjv_id': getattr(p, 'upjv_id', None)
+        })
+
+    return jsonify({'status': 200, 'success': True, 'passengers': passengers})
