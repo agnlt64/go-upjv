@@ -1,6 +1,8 @@
+import datetime
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import logout_user, current_user, login_required
 from app.models.ride import Ride
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -37,10 +39,18 @@ def offer_ride():
 @main.route('/my-reservations')
 @login_required
 def my_reservations():
-    humain = Ride.query.limit(2).all()#Place la limite a 2 pour le a venir
 
-    humains = Ride.query.limit(3).all()#Place la limite a 2 pour le a venir
-    return render_template('my_reservations.html', item=humain, test=humains)
+    humain = Ride.query.limit(3).all()#Place la limite a 3 pour le a venir
+
+    actuel=datetime.now()
+    futur = Ride.query.filter(Ride.date > actuel)\
+                        .order_by(Ride.date.asc())\
+                        .limit(2).all()
+
+    passee = Ride.query.filter(Ride.date < actuel)\
+                        .order_by(Ride.date.asc())\
+                        .limit(3).all()
+    return render_template('my_reservations.html', item=futur, test=passee)
 
 @main.route('/search-ride')
 @login_required
