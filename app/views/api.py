@@ -78,7 +78,7 @@ def sign_up():
     login_user(user)
     return redirect(url_for('main.user_profile'))
 
-@api.route('/update-profile', methods=['PATCH', 'POST'])
+@api.route('/update-profile', methods=['POST'])
 @login_required
 def update_profile():
     user = user_from_request()
@@ -88,7 +88,7 @@ def update_profile():
         flash('Profile updated successfully', 'success')
     return redirect(url_for('main.user_profile'))
 
-@api.route('/update-vehicle', methods=['PATCH', 'POST'])
+@api.route('/update-vehicle', methods=['POST'])
 @login_required
 def update_vehicle():
     vehicle = vehicle_from_request()

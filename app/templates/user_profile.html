@@ -22,7 +22,7 @@
                 </button>
             </div>
 
-            <form action="{{ url_for('api.update_profile') }}" method="PATCH" id="profileForm">
+            <form action="{{ url_for('api.update_profile') }}" method="POST" id="profileForm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
