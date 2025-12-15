@@ -67,7 +67,10 @@ def sign_up():
     
     if not user.is_valid():
         return render_template('auth/sign_up.html', user=user)
-
+    
+    if not check_password(password):
+        return render_template('auth/sign_up.html', user=user)
+    
     user.password = generate_password_hash(password)
     db.session.add(user)
     db.session.commit()
@@ -79,7 +82,7 @@ def sign_up():
 @login_required
 def update_profile():
     user = user_from_request()
-    if user.is_valid(include_password=False):
+    if user.is_valid():
         update(current_user, user)
         db.session.commit()
         flash('Profile updated successfully', 'success')
