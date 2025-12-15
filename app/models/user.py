@@ -34,13 +34,12 @@ class User(db.Model, UserMixin):
     def to_str(self):
         return f"{self.first_name} {self.last_name}"
     
-    def is_valid(self, include_password = True) -> bool:
+    def is_valid(self) -> bool:
         return all([
             self.first_name,
             self.last_name,
             self.upjv_id,
             self.email,
-            self.password if include_password else True
         ])
         
     def exists(self) -> 'User':
