@@ -63,47 +63,22 @@ def search_ride():
 
 
 
-from app.models import Ride, User, Vehicle
+from app.models import Ride, User 
 
 
 @main.route('/rides/<int:ride_id>/passengers')
 @login_required
 def get_ride_passengers(ride_id):
+    # 1. On récupère le trajet
     ride = Ride.query.get_or_404(ride_id)
     
-    # --- ÉTAPE 1 : RÉCUPÉRER LE VÉHICULE ---
-    # On cherche le véhicule qui appartient au conducteur du trajet
-    vehicle = Vehicle.query.filter_by(owner_id=ride.driver_id).first()
+    # 2. MAGIE SQLALCHEMY : 
+    # Grâce à la ligne "passengers = db.relationship..." dans ton ride.py,
+    # ride.passengers contient DÉJÀ la liste des objets User qui ont réservé.
+    # Pas besoin de chercher dans une table "Reservation" manuellement.
+    users = ride.passengers
     
-    # Sécurité : Si le chauffeur n'a pas de véhicule enregistré, on suppose une voiture standard (5 places)
-    max_seats = vehicle.max_seats if vehicle else 5
-    
-    # --- ÉTAPE 2 : LE CALCUL DYNAMIQUE ---
-    # Capacité passagers = Total places voiture - 1 (le conducteur)
-    capacite_passagers = max_seats - 1
-    
-    # Nombre de passagers déjà présents = Capacité passagers - Places libres
-    nb_passagers_a_afficher = capacite_passagers - ride.seats
-    
-    # Petite sécurité pour ne jamais avoir de nombre négatif
-    if nb_passagers_a_afficher < 0:
-        nb_passagers_a_afficher = 0
-
-    # --- ÉTAPE 3 : RÉCUPÉRATION DES USERS (Comme avant) ---
-    users = []
-    
-    if nb_passagers_a_afficher > 0:
-        # On filtre pour ne pas prendre le chauffeur lui-même
-        query_sans_chauffeur = User.query.filter(User.id != ride.driver_id)
-        
-        # On utilise l'ID du trajet pour varier les passagers (Offset)
-        users = query_sans_chauffeur.offset(ride_id).limit(nb_passagers_a_afficher).all()
-        
-        # Fallback : si on est trop loin dans la liste, on reprend les premiers
-        if len(users) < nb_passagers_a_afficher:
-            users = query_sans_chauffeur.limit(nb_passagers_a_afficher).all()
-
-    # --- ÉTAPE 4 : CRÉATION DU JSON ---
+    # 3. On prépare le JSON
     liste_passagers = []
     
     for user in users:

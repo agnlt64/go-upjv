@@ -45,41 +45,75 @@
 {% endmacro %}
 
 {% macro ride(item) %}
-<article class="bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 md:flex md:items-center gap-4 mb-6">
-    <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col">
-        <span class="text-xs">{{ item.get_month() }}</span>
-        <span class="text-2xl font-bold">{{ item.get_day() }}</span>
-        <span class="text-xs">{{ item.get_year() }}</span>
+<article class="bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 mb-6 transition-all duration-200">
+    
+    <div class="md:flex md:items-center gap-4">
+        
+        <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
+            <span class="text-xs">{{ item.get_month() }}</span>
+            <span class="text-2xl font-bold">{{ item.get_day() }}</span>
+            <span class="text-xs">{{ item.get_year() }}</span>
+        </div>
+
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2 mt-4 md:mt-0">
+            <div>
+                <div class="text-sm text-slate-500">Chauffeur</div>
+                <div class="font-medium text-slate-900">{{ item.driver.to_str() }}</div>
+            </div>
+
+            <div>
+                <div class="text-sm text-slate-500">Places</div>
+                <div class="font-medium text-slate-900">
+                    {{ item.seats }} libre(s)
+                </div>
+            </div>
+
+            <div>
+                <div class="text-sm text-slate-500">Départ</div>
+                <div class="font-medium text-slate-900 leading-tight">
+                    {{ item.start_location.name }} 
+                    <span class="block text-xs text-slate-600 mt-1">{{ item.get_departure_time() }}</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-sm text-slate-500">Arrivée</div>
+                <div class="font-medium text-slate-900 leading-tight">
+                    {{ item.end_location.name }} 
+                    <span class="block text-xs text-slate-600 mt-1">{{ item.get_arrival_time() }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-end gap-2 mt-4 md:mt-0">
+            <button type="button"
+                class="btn-toggle-passengers bg-indigo-600 text-white font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-sm whitespace-nowrap" 
+                data-ride-id="{{ item.id }}">
+                Passagers ({{ item.passengers|length }})
+            </button>
+        </div>
     </div>
 
-    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2">
-        <div>
-            <div class="text-sm text-slate-500">Chauffeur</div>
-            <div class="font-medium text-slate-900">{{ item.driver.to_str() }}</div>
-        </div>
-
-        <div>
-            <div class="text-sm text-slate-500">Places disponibles</div>
-            <div class="font-medium text-slate-900">{{ item.seats }}</div>
-        </div>
-
-        <div>
-            <div class="text-sm text-slate-500">Départ</div>
-            <div class="font-medium text-slate-900">{{ item.start_location.name }} — <span class="text-sm text-slate-600">{{ item.get_departure_time() }}</span></div>
-        </div>
-
-        <div>
-            <div class="text-sm text-slate-500">Arrivée</div>
-            <div class="font-medium text-slate-900">{{ item.end_location.name }} — <span class="text-sm text-slate-600">{{ item.get_arrival_time() }}</span></div>
-        </div>
+    <div id="passenger-list-{{ item.id }}" class="hidden mt-4 border-t border-indigo-100 pt-4">
+        {% if item.passengers %}
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Liste des inscrits</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {% for passenger in item.passengers %}
+                <div class="flex items-center gap-3 p-2 rounded-md bg-white border border-slate-100 shadow-sm">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
+                        {{ passenger.first_name[0].upper() }}
+                    </div>
+                    <div class="flex flex-col overflow-hidden">
+                        <span class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{ passenger.last_name }}</span>
+                        <span class="text-[10px] text-slate-500 font-mono">ID: {{ passenger.upjv_id }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-sm text-slate-500 italic text-center py-2">Aucun passager inscrit pour le moment.</p>
+        {% endif %}
     </div>
 
-    <div class="flex flex-col items-end gap-2">
-       <button 
-    class="bg-indigo-600 text-white font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm btn-view-passengers" 
-    data-ride-id="{{ item.id }}">
-    Voir passagers
-</button>
-    </div>
 </article>
 {% endmacro %}
