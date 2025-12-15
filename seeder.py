@@ -1,6 +1,7 @@
 import string
 from app import create_app, db
 from app.models import User, Vehicle, Location, Ride, Review
+from app.models.ride import reservation_table
 from werkzeug.security import generate_password_hash
 import random
 import os
@@ -166,23 +167,36 @@ def seed_reservations(rides, users, avg_passengers=2):
     
     with app.app_context():
         reservation_count = 0
-        
         for ride in rides:
             # Don't book passengers on rides with no available seats
-            if ride.seats == 0:
+            if not ride.seats or ride.seats <= 0:
                 continue
-            
+
             # Random number of passengers (but not more than available seats)
             num_passengers = random.randint(0, min(ride.seats, avg_passengers))
-            
-            # Get users who are not the driver
+
+            # Get users who are not the driver and not already passengers
             potential_passengers = [user for user in users if user.id != ride.driver_id]
-            
-            if potential_passengers:
-                passengers = random.sample(potential_passengers, min(num_passengers, len(potential_passengers)))
-                ride.passengers.extend(passengers)
-                reservation_count += len(passengers)
-        
+            if not potential_passengers or num_passengers == 0:
+                continue
+
+            passengers = random.sample(potential_passengers, min(num_passengers, len(potential_passengers)))
+
+            # Insert into association table explicitly to ensure rows in `reservation`
+            for p in passengers:
+                # Avoid duplicate entries
+                existing = db.session.execute(
+                    reservation_table.select().where(
+                        (reservation_table.c.user_id == p.id) & (reservation_table.c.ride_id == ride.id)
+                    )
+                ).first()
+                if existing:
+                    continue
+                db.session.execute(
+                    reservation_table.insert().values(user_id=p.id, ride_id=ride.id)
+                )
+                reservation_count += 1
+
         db.session.commit()
         print(f"Seeded {reservation_count} reservations!")
 
