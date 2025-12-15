@@ -37,7 +37,10 @@ def offer_ride():
 @main.route('/my-reservations')
 @login_required
 def my_reservations():
-    return render_template('my_reservations.html', item=Ride.query.first())
+    humain = Ride.query.limit(2).all()#Place la limite a 2 pour le a venir
+
+    humains = Ride.query.limit(3).all()#Place la limite a 2 pour le a venir
+    return render_template('my_reservations.html', item=humain, test=humains)
 
 @main.route('/search-ride')
 @login_required
