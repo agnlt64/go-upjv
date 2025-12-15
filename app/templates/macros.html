@@ -45,24 +45,38 @@
 {% endmacro %}
 
 {% macro ride(item) %}
-<div class="flex gap-2 p-6">
-    <div class="bg-stone-200 shadow-lg rounded-lg text-xl flex flex-col items-center justify-center py-4 px-10 text-black font-bold">
-        <span>{{ item.get_month() }}</span>
-        <span class="text-indigo-500">{{ item.get_day() }}</span>
-        <span>{{ item.get_year() }}</span>
+<article class="bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 md:flex md:items-center gap-4 mb-6">
+    <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col">
+        <span class="text-xs">{{ item.get_month() }}</span>
+        <span class="text-2xl font-bold">{{ item.get_day() }}</span>
+        <span class="text-xs">{{ item.get_year() }}</span>
     </div>
-    <div class=" w-[700px] bg-indigo-500 shadow-lg text-slate-300 rounded-lg grid grid-rows-2 gap-4 p-4 ">
-        <div class="grid grid-cols-3 items-center">
-            {{ ride_field("Nom du chauffeur", item.driver.to_str()) }}
-            {{ ride_field("Heure de départ", item.get_departure_time()) }}
-            {{ ride_field("Heure d'arrivée", item.get_arrival_time()) }}
+
+    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2">
+        <div>
+            <div class="text-sm text-slate-500">Chauffeur</div>
+            <div class="font-medium text-slate-900">{{ item.driver.to_str() }}</div>
         </div>
-        <div class="grid grid-cols-3">
-            {{ ride_field("Places disponibles", item.seats) }}
-            {{ ride_field("Point de rendez-vous", item.start_location.name) }}
-            {{ ride_field("Destination", item.end_location.name) }}
+
+        <div>
+            <div class="text-sm text-slate-500">Places disponibles</div>
+            <div class="font-medium text-slate-900">{{ item.seats }}</div>
         </div>
-        <button class="underline w-fit">Voir tous les passagers</button>
+
+        <div>
+            <div class="text-sm text-slate-500">Départ</div>
+            <div class="font-medium text-slate-900">{{ item.start_location.name }} — <span class="text-sm text-slate-600">{{ item.get_departure_time() }}</span></div>
+        </div>
+
+        <div>
+            <div class="text-sm text-slate-500">Arrivée</div>
+            <div class="font-medium text-slate-900">{{ item.end_location.name }} — <span class="text-sm text-slate-600">{{ item.get_arrival_time() }}</span></div>
+        </div>
     </div>
-</div>
+
+    <div class="flex flex-col items-end gap-2">
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Voir passagers</button>
+        
+    </div>
+</article>
 {% endmacro %}
