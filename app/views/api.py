@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, url_for, flash, render_template
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.models import User
+from app.models import User, Ride
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
 from app import db
 
@@ -33,7 +33,6 @@ def toggle_admin_role(user_id):
 @api.route('/login', methods=['POST'])
 def login():
     password = request.form.get('password')
-    
     user = user_from_request()
 
     if actual_user := user.exists():
@@ -144,5 +143,6 @@ def change_password():
 
     current_user.password = generate_password_hash(new_password)
     db.session.commit()
+    
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))

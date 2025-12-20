@@ -1,3 +1,5 @@
+import datetime
+from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import logout_user, current_user, login_required
 from app.models.ride import Ride
@@ -7,6 +9,7 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     if current_user.is_authenticated:
+        # Redirection vers la recherche si connecté
         return redirect(url_for('main.search_ride'))
     return render_template('index.html')
 
@@ -37,7 +40,15 @@ def offer_ride():
 @main.route('/my-reservations')
 @login_required
 def my_reservations():
-    return render_template('my_reservations.html', item=Ride.query.first())
+    now = datetime.now()
+
+    # Séparation des trajets à venir et passés
+    upcoming_rides = Ride.query.filter(Ride.date > now).order_by(Ride.date.asc()).all()
+    past_rides = Ride.query.filter(Ride.date < now).order_by(Ride.date.asc()).all()
+
+    return render_template('my_reservations.html', 
+                           upcoming_rides=upcoming_rides, 
+                           past_rides=past_rides)
 
 @main.route('/search-ride')
 @login_required
