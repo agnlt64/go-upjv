@@ -7,19 +7,23 @@
 {% block content %}
 <div class="container mx-auto py-32">
     <h1 class="text-4xl mb-4">À venir</h1>
-    {# test ride #}
-    {% for element in item %}
-        
+    
+    {# Affichage des trajets futurs #}
+    {% for element in upcoming_rides %}
         {{ ride(element) }}
-
     {% endfor %}
+    
     <h1 class="text-4xl mt-4 mb-4"> Passées</h1>
-    {% for element in test %}
-        
+    
+    {# Affichage des trajets passés #}
+    {% for element in past_rides %}
         {{ ride(element) }}
-
     {% endfor %}
 
 </div>
+{% endblock %}
 
+{% block scripts %}
+    {# Script spécifique pour l'affichage des passagers #}
+    <script src="{{ url_for('static', filename='js/reservations.js') }}"></script>
 {% endblock %}

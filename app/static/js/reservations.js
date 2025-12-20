@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     
     // On écoute les clics sur toute la page
-    document.body.addEventListener('click', function(e) {
+    document.body.addEventListener('click', (e) => {
         
         // On vérifie si on a cliqué sur un bouton "Passagers"
         const button = e.target.closest('.btn-toggle-passengers');
