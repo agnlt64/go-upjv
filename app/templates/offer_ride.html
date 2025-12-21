@@ -1,3 +1,33 @@
 {% extends 'base.html' %}
 
+{# Import de la macro (assure-toi que le nom du fichier est bon) #}
+{% from 'macros.html' import offer_ride %}
+
 {% block title %}Proposer un trajet - GoUPJV{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-32 max-w-5xl">
+    
+    <h1 class="text-3xl font-extrabold mb-10 text-black">
+        {{ current_user.first_name }}, proposez un trajet
+    </h1>
+
+    {# VÉRIFICATION DE SÉCURITÉ #}
+    {# On vérifie d'abord si l'utilisateur a bien un véhicule enregistré #}
+    {% if current_user.vehicle %}
+    
+        {# On passe directement l'objet de la base de données à la macro #}
+        {{ offer_ride(current_user.vehicle) }}
+    
+    {% else %}
+    
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
+            <p class="font-bold">Attention</p>
+            <p>Vous n'avez pas encore enregistré de véhicule.</p>
+            <a href="/ajouter-vehicule" class="underline">Ajouter un véhicule</a>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -34,6 +34,8 @@ def user_profile():
 @main.route('/offer-ride')
 @login_required
 def offer_ride():
+
+    
     return render_template('offer_ride.html')
 
 @main.route('/my-reservations')
