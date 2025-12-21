@@ -119,17 +119,86 @@
 {% endmacro %}
 
 {% macro offer_ride(vehicle) %}
+
+{% set fields = [
+    {'sys_name': 'depart',         'label': 'Départ'},
+    {'sys_name': 'arrivee',        'label': 'Arrivée'},
+    {'sys_name': 'heure_depart',   'label': 'Heure de départ'},
+    {'sys_name': 'heure_arrivee',  'label': "Heure d'arrivée"},
+    {'sys_name': 'jour',           'label': 'Jour'},
+    {'sys_name': 'passagers',      'label': 'Passagers possible'}
+] %}
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
     
     <div class="flex flex-col space-y-6">
-        {% for label in ['Départ', 'Arrivée', 'Heure de départ', 'Heure d\'arrivée', 'Jour', 'Passagers possible'] %}
-        <div class="border-b-2 border-gray-200 pb-2 flex justify-between items-center cursor-pointer hover:border-indigo-300 transition-colors">
-            <span class="text-gray-400 font-bold text-xl">{{ label }}</span>
-            <div class="bg-gray-100 rounded-md p-2 text-gray-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+    
+    {# 2. ON BOUCLE SUR NOS OBJETS #}
+    {% for field in fields %}
+        
+        {# On utilise field.sys_name pour les IDs (pas de risque d'apostrophe ici !) #}
+        <div id="container-{{ field.sys_name }}" 
+             class="border-b-2 border-gray-200 pb-2 transition-all duration-300 group">
+            
+            {# On passe le nom système au JavaScript #}
+            <div onclick="toggleInput('{{ field.sys_name }}')" class="flex justify-between items-center cursor-pointer">
+                
+                {# Ici on affiche le JOLI texte pour l'humain #}
+                <span class="text-gray-400 font-bold text-xl group-hover:text-indigo-500 transition-colors">
+                    {{ field.label }}
+                </span>
+
+                <div class="bg-gray-100 rounded-md p-2 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                    <svg id="icon-{{ field.sys_name }}" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
             </div>
+
+            {# Zone d'input avec ID système #}
+            <div id="input-area-{{ field.sys_name }}" class="hidden mt-3">
+                
+                {# 3. ON VÉRIFIE LE NOM SYSTÈME (plus sûr que le texte) #}
+                
+                {% if field.sys_name == 'depart' %}
+                    <input type="text" name="start_location" placeholder="Ville de départ..." 
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+                
+                {% if field.sys_name == 'arrivee' %}
+                    <input type="text" name="end_location" placeholder="Ville d'arrivée..." 
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+
+                {% if field.sys_name == 'heure_depart' %}
+                    <input type="time" name="departure_time" 
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+
+                {% if field.sys_name == 'heure_arrivee' %}
+                    <input type="time" name="arrival_time" 
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+
+                {% if field.sys_name == 'jour' %}
+                    <input type="date" name="ride_date" 
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+
+                {% if field.sys_name == 'passagers' %}
+                    <input type="number" name="seats" min="1" max="8" placeholder="{{ vehicle.max_seats }} maximum"
+                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()"> 
+                {% endif %}
+            </div>
+
         </div>
-        {% endfor %}
+    {% endfor %}
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 sticky top-4">
