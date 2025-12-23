@@ -2,7 +2,9 @@ import datetime
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import logout_user, current_user, login_required
-from app.models.ride import Ride
+from app.models.ride import Ride 
+from app.models.location import Location
+
 
 main = Blueprint('main', __name__)
 
@@ -30,13 +32,15 @@ def logout():
 @login_required
 def user_profile():
     return render_template('user_profile.html')
+    
 
 @main.route('/offer-ride')
 @login_required
+
 def offer_ride():
 
-    
-    return render_template('offer_ride.html')
+    suggestions = Location.query.limit(3).all()
+    return render_template('offer_ride.html', lieux_bdd=suggestions)
 
 @main.route('/my-reservations')
 @login_required

@@ -6,6 +6,7 @@
 {% block title %}Proposer un trajet - GoUPJV{% endblock %}
 
 {% block content %}
+<script src="{{ url_for('static', filename='js/offer_ride.js') }}"></script>
 <div class="container mx-auto px-4 py-32 max-w-5xl">
     
     <h1 class="text-3xl font-extrabold mb-10 text-black">
@@ -17,7 +18,7 @@
     {% if current_user.vehicle %}
     
         {# On passe directement l'objet de la base de données à la macro #}
-        {{ offer_ride(current_user.vehicle) }}
+        {{ offer_ride(current_user.vehicle, lieux_bdd) }}
     
     {% else %}
     

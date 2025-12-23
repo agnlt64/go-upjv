@@ -118,7 +118,7 @@
 </article>
 {% endmacro %}
 
-{% macro offer_ride(vehicle) %}
+{% macro offer_ride(vehicle, locations) %}
 
 {% set fields = [
     {'sys_name': 'depart',         'label': 'Départ'},
@@ -166,12 +166,16 @@
                         <div class="mt-3 flex flex-wrap gap-2">
                             <span class="text-xs text-gray-400 font-bold w-full mb-1 uppercase tracking-wider">Suggestions :</span>
                             
-                            {% for location in location.name[:3] %}
+                            {% for lieu in locations %}
                                 <button type="button"
-                                        onclick="selectLocation('depart', '{{ location.name }}')"
+                                        {# On utilise lieu.name car c'est le nom de ta colonne dans la BDD #}
+                                        onclick="selectLocation('depart', '{{ lieu.name }}')"
                                         class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-sm font-medium px-3 py-1.5 rounded-full transition-colors duration-200">
-                                    {{ location.name }}
+                                    {{ lieu.name }}
                                 </button>
+                            {% else %}
+                                {# S'il n'y a rien dans la base, on affiche un petit message ou rien du tout #}
+                                <span class="text-xs text-gray-300 italic">Aucune suggestion disponible</span>
                             {% endfor %}
                         </div>
                     </div>
