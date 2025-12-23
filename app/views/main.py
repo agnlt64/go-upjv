@@ -52,3 +52,32 @@ def my_reservations():
 @login_required
 def search_ride():
     return render_template('search_ride.html')
+
+
+
+
+from app.models import Ride, User 
+
+
+@main.route('/rides/<int:ride_id>/passengers')
+@login_required
+def get_ride_passengers(ride_id):
+    # 1. On récupère le trajet
+    ride = Ride.query.get_or_404(ride_id)
+    
+    # 2. On récupère les passagers
+    users = ride.passengers
+    
+    # 3. On prépare le JSON
+    liste_passagers = []
+    
+    for user in users:
+        full_name = f"{user.first_name} {user.last_name}"
+        
+        liste_passagers.append({
+            'name': full_name,
+            'upjv_id': user.upjv_id,
+            'avatar_initial': user.first_name[0].upper() if user.first_name else "?"
+        })
+    
+    return jsonify({'passengers': liste_passagers})

@@ -38,3 +38,22 @@ function toggleInput(label) {
         container.classList.add('border-gray-200');
     }
 }
+
+function selectLocation(fieldId, value) {
+    // 1. Trouver l'input correspondant (ex: input-depart)
+    const input = document.getElementById('input-' + fieldId);
+    
+    if (input) {
+        // 2. Remplir la valeur
+        input.value = value;
+        
+        // 3. Donner le focus (optionnel, pour montrer qu'on a sélectionné)
+        input.focus();
+        
+        // 4. Effet visuel (flash jaune rapide pour confirmer)
+        input.classList.add('bg-yellow-50');
+        setTimeout(() => {
+            input.classList.remove('bg-yellow-50');
+        }, 300);
+    }
+}
