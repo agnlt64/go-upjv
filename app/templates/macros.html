@@ -181,7 +181,9 @@
                 {% endif %}
                 
                 {% if field.sys_name == 'arrivee' %}
-                    <input type="text" name="end_location" placeholder="Ville d'arrivée..." 
+                    <input type="text"
+                        id="input-arrivee"
+                        name="end_location" placeholder="Ville d'arrivée..." 
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                         onclick="event.stopPropagation()"> 
 
@@ -213,9 +215,10 @@
                 {% endif %}
 
                 {% if field.sys_name == 'jour' %}
-                    <input type="date" name="ride_date" 
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                        onclick="event.stopPropagation()"> 
+                    <input type="date" 
+                        name="ride_date" 
+                        id="input-jour"  class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                        onclick="event.stopPropagation()">
                 {% endif %}
 
                 {% if field.sys_name == 'passagers' %}

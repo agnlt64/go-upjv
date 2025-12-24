@@ -40,20 +40,32 @@ function toggleInput(label) {
 }
 
 function selectLocation(fieldId, value) {
-    // 1. Trouver l'input correspondant (ex: input-depart)
     const input = document.getElementById('input-' + fieldId);
     
     if (input) {
-        // 2. Remplir la valeur
         input.value = value;
-        
-        // 3. Donner le focus (optionnel, pour montrer qu'on a sélectionné)
-        input.focus();
-        
-        // 4. Effet visuel (flash jaune rapide pour confirmer)
-        input.classList.add('bg-yellow-50');
-        setTimeout(() => {
-            input.classList.remove('bg-yellow-50');
-        }, 300);
     }
 }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('input-jour');
+
+    if (dateInput) {
+        // 1. Date du jour
+        const today = new Date().toISOString().split('T')[0];
+
+        // 2. On bloque visuellement le calendrier (attribut min)
+        dateInput.setAttribute('min', today);
+
+        // 3. Surveillance de la saisie
+        dateInput.addEventListener('input', function() {
+            // Si la date est remplie ET qu'elle est dans le passé
+            if (this.value && this.value < today) {
+                
+                // On force la date d'aujourd'hui
+                this.value = today; 
+
+            }
+        });
+    }
+});
