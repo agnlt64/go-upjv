@@ -4,8 +4,9 @@ from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
-from app.models import User, Ride, Location
-from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
+from app.models import User, Ride
+from app.models.location import Location
+from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
 from app import db
 
 api = Blueprint('api', __name__)
@@ -127,6 +128,7 @@ def change_password():
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))
 
+<<<<<<< HEAD
 @api.route('/search-rides', methods=['GET'])
 @login_required
 def search_rides():
@@ -179,3 +181,25 @@ def book_ride(ride_id):
     ride.seats -= 1
     db.session.commit()
     return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
+=======
+
+from flask import jsonify, request
+
+from flask import jsonify, request
+
+@api.route('/recherche-villes')
+def recherche_villes():
+    query = request.args.get('q', '') # On récupère ce que l'utilisateur a tapé
+    
+    if len(query) < 1:
+        return jsonify([]) # Si c'est vide, on renvoie une liste vide
+
+    # On cherche dans la BDD les villes qui ressemblent à la recherche
+    # .ilike permet d'ignorer les majuscules/minuscules
+    resultats = Location.query.filter(Location.name.ilike(f'%{query}%')).limit(3).all()
+    
+    # On transforme les objets BDD en simple liste de textes pour le JSON
+    villes_json = [{'name': lieu.name} for lieu in resultats]
+    
+    return jsonify(villes_json)
+>>>>>>> 5d4e901 (Mise en place des suggestions interactive + bouton mettre en ligne fonctionnel)

@@ -1,9 +1,10 @@
 import datetime
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request, flash, redirect
 from flask_login import logout_user, current_user, login_required
 from app.models.ride import Ride 
 from app.models.location import Location
+from app import db
 
 
 main = Blueprint('main', __name__)
@@ -34,12 +35,66 @@ def user_profile():
     return render_template('user_profile.html')
     
 
-@main.route('/offer-ride')
+@main.route('/offer-ride', methods=['GET', 'POST'])
 @login_required
 
 def offer_ride():
 
-    suggestions = Location.query.limit(3).all()
+    if request.method == 'POST':
+        try:
+            # --- 1. RÉCUPÉRATION DES DONNÉES DU FORMULAIRE ---
+            nom_depart = request.form.get('start_location')
+            nom_arrivee = request.form.get('end_location')
+            date_str = request.form.get('ride_date')         # "2025-12-22"
+            heure_str = request.form.get('departure_time')   # "14:30"
+            seats = int(request.form.get('seats'))
+
+            # On combine la date et l'heure pour créer un objet datetime complet
+            # (Car ta table 'ride' semble avoir une colonne 'date' qui stocke tout)
+            date_heure_depart = datetime.strptime(f"{date_str} {heure_str}", '%Y-%m-%d %H:%M')
+
+            # --- 2. GESTION DU LIEU DE DÉPART (Table Location) ---
+            # On cherche si ce nom existe déjà dans la table Location
+            lieu_depart = Location.query.filter_by(name=nom_depart).first()
+
+            if not lieu_depart:
+                # Il n'existe pas, on le crée !
+                # Note: On met lat/lon à 0.0 par défaut car on ne les a pas via ce formulaire simple
+                lieu_depart = Location(name=nom_depart, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
+                db.session.add(lieu_depart)
+                db.session.flush() # IMPORTANT: flush() génère l'ID sans fermer la transaction
+            
+            # --- 3. GESTION DU LIEU D'ARRIVÉE (Table Location) ---
+            lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
+
+            if not lieu_arrivee:
+                lieu_arrivee = Location(name=nom_arrivee, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
+                db.session.add(lieu_arrivee)
+                db.session.flush() 
+
+            # --- 4. CRÉATION DU TRAJET (Table Ride) ---
+            # Maintenant on a lieu_depart.id et lieu_arrivee.id, on peut remplir la table ride
+            new_ride = Ride(
+                driver_id=current_user.id,
+                start_location_id=lieu_depart.id,  # On utilise l'ID récupéré ou créé
+                end_location_id=lieu_arrivee.id,   # Idem
+                date=date_heure_depart,            # Le datetime complet
+                seats=seats
+                # Ajoute ici 'price' ou autres colonnes si nécessaire
+            )
+
+            db.session.add(new_ride)
+            db.session.commit() # On valide tout d'un coup
+
+            flash('Trajet publié avec succès !', 'success')
+            return redirect(url_for('mes_trajets')) # Redirige où tu veux
+
+        except Exception as e:
+            db.session.rollback() # En cas d'erreur, on annule tout
+            flash(f"Erreur lors de l'enregistrement : {str(e)}", 'error')
+            print(e) # Affiche l'erreur dans ta console pour le debug
+
+        suggestions = Location.query.limit(3).all()
     return render_template('offer_ride.html', lieux_bdd=suggestions)
 
 @main.route('/my-reservations')

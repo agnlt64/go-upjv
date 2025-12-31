@@ -69,3 +69,42 @@ function selectLocation(fieldId, value) {
         });
     }
 });
+
+// Fonction pour chercher les villes dynamiquement
+async function searchCities(type, query) {
+    // 1. On identifie la zone où mettre les boutons (ex: suggestions-depart)
+    const container = document.getElementById(`suggestions-${type}`);
+    
+    // Si la recherche est vide, on ne fait rien (ou on pourrait remettre les suggestions par défaut)
+    if (query.length === 0) return;
+
+    try {
+        // 2. On interroge notre serveur Python
+        const response = await fetch(`/api/recherche-villes?q=${query}`);
+        const villes = await response.json();
+
+        // 3. On vide les anciens boutons
+        container.innerHTML = '<span class="text-xs text-gray-400 font-bold w-full mb-1 uppercase tracking-wider">Résultats :</span>';
+
+        // 4. On crée les nouveaux boutons
+        if (villes.length > 0) {
+            villes.forEach(ville => {
+                // Création du bouton en HTML pur
+                const btnHTML = `
+                    <button type="button" 
+                            onclick="selectLocation('${type}', \`${ville.name}\`)"
+                            class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-sm font-medium px-3 py-1.5 rounded-full transition-colors duration-200">
+                        ${ville.name}
+                    </button>
+                `;
+                // On l'ajoute au conteneur
+                container.innerHTML += btnHTML;
+            });
+        } else {
+            container.innerHTML += '<span class="text-xs text-gray-300 italic">Aucune ville trouvée</span>';
+        }
+
+    } catch (error) {
+        console.error("Erreur lors de la recherche :", error);
+    }
+}
