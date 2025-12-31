@@ -185,8 +185,6 @@ def book_ride(ride_id):
 
 from flask import jsonify, request
 
-from flask import jsonify, request
-
 @api.route('/recherche-villes')
 def recherche_villes():
     query = request.args.get('q', '') # On récupère ce que l'utilisateur a tapé

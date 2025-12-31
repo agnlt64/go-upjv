@@ -37,64 +37,62 @@ def user_profile():
 
 @main.route('/offer-ride', methods=['GET', 'POST'])
 @login_required
-
 def offer_ride():
-
+    # 1. TRAITEMENT DU FORMULAIRE (POST)
     if request.method == 'POST':
         try:
-            # --- 1. RÉCUPÉRATION DES DONNÉES DU FORMULAIRE ---
+            # Récupération
             nom_depart = request.form.get('start_location')
             nom_arrivee = request.form.get('end_location')
-            date_str = request.form.get('ride_date')         # "2025-12-22"
-            heure_str = request.form.get('departure_time')   # "14:30"
-            seats = int(request.form.get('seats'))
+            date_str = request.form.get('ride_date')
+            heure_str = request.form.get('departure_time')
+            seats = request.form.get('seats')
 
-            # On combine la date et l'heure pour créer un objet datetime complet
-            # (Car ta table 'ride' semble avoir une colonne 'date' qui stocke tout)
+            # Sécurité : Champs vides
+            if not all([nom_depart, nom_arrivee, date_str, heure_str, seats]):
+                flash("Veuillez remplir tous les champs obligatoires.", "error")
+                return redirect(url_for('main.offer_ride'))
+
+            # Conversion Date/Heure
             date_heure_depart = datetime.strptime(f"{date_str} {heure_str}", '%Y-%m-%d %H:%M')
 
-            # --- 2. GESTION DU LIEU DE DÉPART (Table Location) ---
-            # On cherche si ce nom existe déjà dans la table Location
+            # Gestion Lieu Départ
             lieu_depart = Location.query.filter_by(name=nom_depart).first()
-
             if not lieu_depart:
-                # Il n'existe pas, on le crée !
-                # Note: On met lat/lon à 0.0 par défaut car on ne les a pas via ce formulaire simple
                 lieu_depart = Location(name=nom_depart, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
                 db.session.add(lieu_depart)
-                db.session.flush() # IMPORTANT: flush() génère l'ID sans fermer la transaction
+                db.session.flush()
             
-            # --- 3. GESTION DU LIEU D'ARRIVÉE (Table Location) ---
+            # Gestion Lieu Arrivée
             lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
-
             if not lieu_arrivee:
                 lieu_arrivee = Location(name=nom_arrivee, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
                 db.session.add(lieu_arrivee)
                 db.session.flush() 
 
-            # --- 4. CRÉATION DU TRAJET (Table Ride) ---
-            # Maintenant on a lieu_depart.id et lieu_arrivee.id, on peut remplir la table ride
+            # Création du Trajet
             new_ride = Ride(
                 driver_id=current_user.id,
-                start_location_id=lieu_depart.id,  # On utilise l'ID récupéré ou créé
-                end_location_id=lieu_arrivee.id,   # Idem
-                date=date_heure_depart,            # Le datetime complet
-                seats=seats
-                # Ajoute ici 'price' ou autres colonnes si nécessaire
+                start_location_id=lieu_depart.id,
+                end_location_id=lieu_arrivee.id,
+                date=date_heure_depart,
+                seats=int(seats)
             )
 
             db.session.add(new_ride)
-            db.session.commit() # On valide tout d'un coup
+            db.session.commit()
 
             flash('Trajet publié avec succès !', 'success')
-            return redirect(url_for('mes_trajets')) # Redirige où tu veux
+            return redirect(url_for('main.offer_ride')) # Ou 'mes_trajets'
 
         except Exception as e:
-            db.session.rollback() # En cas d'erreur, on annule tout
-            flash(f"Erreur lors de l'enregistrement : {str(e)}", 'error')
-            print(e) # Affiche l'erreur dans ta console pour le debug
+            db.session.rollback()
+            flash(f"Erreur technique : {str(e)}", 'error')
+            print(f"DEBUG ERROR: {e}")
 
-        suggestions = Location.query.limit(3).all()
+    # 2. AFFICHAGE DE LA PAGE (GET et POST si erreur)
+    # Cette partie doit être EN DEHORS du if request.method == 'POST'
+    suggestions = Location.query.limit(3).all()
     return render_template('offer_ride.html', lieux_bdd=suggestions)
 
 @main.route('/my-reservations')
