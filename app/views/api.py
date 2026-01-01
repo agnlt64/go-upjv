@@ -1,4 +1,3 @@
-# ... Tout le fichier précédent + la route book_ride à la fin ...
 from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,7 +5,7 @@ from datetime import datetime, timedelta
 
 from app.models import User, Ride
 from app.models.location import Location
-from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
+from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
 from flask import jsonify, request
 
