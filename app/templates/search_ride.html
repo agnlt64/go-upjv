@@ -7,13 +7,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         .leaflet-routing-container { display: none !important; }
-        /* Force la hauteur pour éviter le bug gris */
         #map { min-height: 500px; height: 100%; width: 100%; }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-24">
     
     <div class="mb-6">
         <input type="text" id="search-input" placeholder="Rechercher une adresse..." 
