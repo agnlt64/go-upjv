@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialisation carte
     const map = L.map('map').setView([49.8942, 2.2957], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
@@ -10,9 +9,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let destinationMarker = null;
 
     setTimeout(() => { map.invalidateSize(); }, 200);
-
-    // 2. Chargement des trajets
     loadRides(null, null);
+
+    // --- RECHERCHE ADRESSE ---
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('change', async function(e) {
+        const query = e.target.value;
+        if (query.length > 3) {
+            try {
+                const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=1`);
+                const data = await response.json();
+                if (data.features && data.features.length > 0) {
+                    const [lon, lat] = data.features[0].geometry.coordinates;
+                    map.setView([lat, lon], 14);
+                    
+                    if (destinationMarker) map.removeLayer(destinationMarker);
+                    destinationMarker = L.marker([lat, lon]).addTo(map).bindPopup("Destination").openPopup();
+                    
+                    loadRides(lat, lon);
+                }
+            } catch (err) { console.error(err); }
+        }
+    });
 
     function loadRides(lat, lon) {
         let url = '/api/search-rides';
@@ -28,10 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     data.rides.forEach(ride => {
                         const div = document.createElement('article');
                         div.className = "bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 mb-6 transition-all duration-200 relative hover:shadow-lg cursor-pointer";
-                        
-                        let distanceHtml = ride.distance > 0 
-                            ? `<span class="absolute top-2 right-2 text-[10px] font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">${ride.distance.toFixed(1)} km</span>` 
-                            : '';
+                        let distanceHtml = ride.distance > 0 ? `<span class="absolute top-2 right-2 text-[10px] font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">${ride.distance.toFixed(1)} km</span>` : '';
 
                         div.innerHTML = `
                             ${distanceHtml}
