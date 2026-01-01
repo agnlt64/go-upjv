@@ -93,7 +93,15 @@ def offer_ride():
     # 2. AFFICHAGE DE LA PAGE (GET et POST si erreur)
     # Cette partie doit être EN DEHORS du if request.method == 'POST'
     suggestions = Location.query.limit(3).all()
-    return render_template('offer_ride.html', lieux_bdd=suggestions)
+    # On récupère les trajets du conducteur pour la sidebar
+
+    mes_trajets = Ride.query.filter(
+        Ride.driver_id == current_user.id,        
+        Ride.date >= datetime.now()               # Seulement les dates futures
+    ).order_by(Ride.date.asc()).all()             
+    return render_template('offer_ride.html', 
+                           lieux_bdd=suggestions,
+                           mes_trajets=mes_trajets)
 
 @main.route('/my-reservations')
 @login_required
