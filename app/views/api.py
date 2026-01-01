@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+# ... Tout le fichier précédent + la route book_ride à la fin ...
 from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
 
-# MODIF IMPORTS : Ajout Location et distance
 from app.models import User, Ride, Location
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
@@ -13,8 +13,7 @@ api = Blueprint('api', __name__)
 @api.route('/toggle-user/<int:user_id>', methods=['POST'])
 @login_required
 def toggle_user_status(user_id):
-    if not current_user.is_admin:
-        return error('Unauthorized', 403)
+    if not current_user.is_admin: return error('Unauthorized', 403)
     user = User.query.get_or_404(user_id)
     user.is_active = not user.is_active
     db.session.commit()
@@ -23,8 +22,7 @@ def toggle_user_status(user_id):
 @api.route('/toggle-admin/<int:user_id>', methods=['POST'])
 @login_required
 def toggle_admin_role(user_id):
-    if not current_user.is_admin:
-        return error('Unauthorized', 403)
+    if not current_user.is_admin: return error('Unauthorized', 403)
     user = User.query.get_or_404(user_id)
     user.is_admin = not user.is_admin
     db.session.commit()
@@ -34,7 +32,6 @@ def toggle_admin_role(user_id):
 def login():
     password = request.form.get('password')
     user = user_from_request()
-
     if actual_user := user.exists():
         if not actual_user.is_active:
             flash('Your account was deactivated', 'error')
@@ -45,7 +42,6 @@ def login():
         else:
             flash('Invalid password', 'error')
             return render_template('auth/login.html', user=user)
-
     flash('User not found', 'error')
     return render_template('auth/login.html', user=user)
 
@@ -54,25 +50,17 @@ def sign_up():
     password = request.form.get('password')
     confirm = request.form.get('confirm_password')
     user = user_from_request()
-
     if user.exists():
         flash('UPJV ID or email already in use', 'error')
         return render_template('auth/sign_up.html', user=user)
-
     if password != confirm:
         flash('Passwords do not match', 'error')
         return render_template('auth/sign_up.html', user=user)
-    
-    if not user.is_valid():
-        return render_template('auth/sign_up.html', user=user)
-    
-    if not check_password(password):
-        return render_template('auth/sign_up.html', user=user)
-    
+    if not user.is_valid(): return render_template('auth/sign_up.html', user=user)
+    if not check_password(password): return render_template('auth/sign_up.html', user=user)
     user.password = generate_password_hash(password)
     db.session.add(user)
     db.session.commit()
-    
     login_user(user)
     return redirect(url_for('main.user_profile'))
 
@@ -105,8 +93,7 @@ def add_vehicle():
         db.session.add(vehicle)
         db.session.commit()
         flash('Vehicle added successfully', 'success')
-    else:
-        flash('Invalid vehicle data', 'error')
+    else: flash('Invalid vehicle data', 'error')
     return redirect(url_for('main.user_profile'))
 
 @api.route('/delete-vehicle', methods=['DELETE', 'POST'])
@@ -117,8 +104,7 @@ def delete_vehicle():
         db.session.delete(vehicle)
         db.session.commit()
         flash('Vehicle deleted successfully', 'success')
-    else:
-        flash('brochacho reached unreachable code 🥀', 'error')
+    else: flash('brochacho reached unreachable code 🥀', 'error')
     return redirect(url_for('main.user_profile'))
 
 @api.route('/change-password', methods=['PATCH', 'POST'])
@@ -127,46 +113,36 @@ def change_password():
     current_password = request.form.get('current_password')
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_new_password')
-
     if not check_password_hash(current_user.password, current_password):
         flash('Current password is incorrect', 'error')
         return redirect(url_for('main.user_profile'))
-
     if new_password != confirm_password:
         flash('New passwords do not match', 'error')
         return redirect(url_for('main.user_profile'))
-
     if not check_password(new_password):
         flash('New password does not meet requirements', 'error')
         return redirect(url_for('main.user_profile'))
-
     current_user.password = generate_password_hash(new_password)
     db.session.commit()
-    
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))
 
-# --- NOUVEAU : API LECTURE ---
 @api.route('/search-rides', methods=['GET'])
 @login_required
 def search_rides():
     now = datetime.now()
     user_lat = request.args.get('lat', type=float)
     user_lon = request.args.get('lon', type=float)
-
     rides_query = Ride.query.filter(Ride.date >= now, Ride.seats > 0).all()
     results = []
-    
     for ride in rides_query:
         dist_km = 0
         if user_lat and user_lon and ride.start_location:
             user_loc = Location(lat=user_lat, lon=user_lon)
             dist_km = distance(user_loc, ride.start_location)
-
         driver_name = f"{ride.driver.first_name} {ride.driver.last_name}" if ride.driver else "Inconnu"
         start_name = ride.start_location.name if ride.start_location else "Départ inconnu"
         end_name = ride.end_location.name if ride.end_location else "Arrivée inconnue"
-        
         results.append({
             'id': ride.id,
             'driver_name': driver_name,
@@ -184,11 +160,22 @@ def search_rides():
             'seats': ride.seats,
             'distance': dist_km
         })
-
     if user_lat and user_lon:
         results.sort(key=lambda x: x['distance'])
         results = results[:5]
     else:
         results.sort(key=lambda x: (x['date_year'], x['date_month'], x['date_day'], x['time_start']))
-
     return jsonify({'success': True, 'rides': results})
+
+# --- NOUVEAU : ROUTE ECRITURE ---
+@api.route('/book-ride/<int:ride_id>', methods=['POST'])
+@login_required
+def book_ride(ride_id):
+    ride = Ride.query.get_or_404(ride_id)
+    if ride.seats <= 0: return jsonify({'success': False, 'message': 'Ce trajet est complet !'})
+    if ride.driver_id == current_user.id: return jsonify({'success': False, 'message': 'Impossible de réserver son propre trajet.'})
+    if current_user in ride.passengers: return jsonify({'success': False, 'message': 'Vous avez déjà réservé ce trajet.'})
+    ride.passengers.append(current_user)
+    ride.seats -= 1
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
