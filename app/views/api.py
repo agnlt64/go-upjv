@@ -129,7 +129,6 @@ def change_password():
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))
 
-<<<<<<< HEAD
 @api.route('/search-rides', methods=['GET'])
 @login_required
 def search_rides():
@@ -182,7 +181,6 @@ def book_ride(ride_id):
     ride.seats -= 1
     db.session.commit()
     return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
-=======
 
 
 @api.route('/recherche-villes')
@@ -200,4 +198,3 @@ def recherche_villes():
     villes_json = [{'name': lieu.name} for lieu in resultats]
     
     return jsonify(villes_json)
->>>>>>> 5d4e901 (Mise en place des suggestions interactive + bouton mettre en ligne fonctionnel)
