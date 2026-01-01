@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/colors.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/flash-messages.css') }}">
-    
-
     {% block styles %}
     {% endblock %}
 </head>
@@ -65,6 +63,8 @@
     </footer> -->
 
     {# C'est ici que les templates enfants injecteront leurs propres scripts #}
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/offer_ride.js') }}"></script>
+    {% endblock %}
 </body>
 </html>

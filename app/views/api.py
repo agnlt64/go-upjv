@@ -8,6 +8,7 @@ from app.models import User, Ride
 from app.models.location import Location
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
 from app import db
+from flask import jsonify, request
 
 api = Blueprint('api', __name__)
 
@@ -183,7 +184,6 @@ def book_ride(ride_id):
     return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
 =======
 
-from flask import jsonify, request
 
 @api.route('/recherche-villes')
 def recherche_villes():
