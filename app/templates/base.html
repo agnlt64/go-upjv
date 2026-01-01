@@ -1,4 +1,4 @@
-{% from 'macros.html' import logout_icon, user_icon, nav_link, logo %}
+{% from 'macros.html' import logout_icon, user_icon, nav_link, logo, flash_messages %}
 
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
@@ -16,8 +16,8 @@
     {% endblock %}
 </head>
 
-<body class="h-screen flex flex-col">
-    <header class="fixed top-0 w-full">
+<body class="h-screen flex flex-col bg-gray-50">
+    <header class="fixed top-0 w-full z-50">
         <nav class="px-8 py-3 rounded-full m-5 bg-white border border-gray-200 shadow-lg">
             <ul class="flex justify-between items-center">
                 <div>
@@ -49,10 +49,20 @@
         </nav>
     </header>
 
-    {% block content %}{% endblock %}
+    <main class="flex-grow pt-32 px-4 w-full max-w-screen-2xl mx-auto">
+        
+        <div class="mb-6 w-full max-w-2xl mx-auto">
+            {{ flash_messages() }}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
     
+    <footer class="text-center py-4 text-gray-400 text-sm mt-auto">
+        &copy; 2026 GoUPJV
+    </footer>
+
     {# C'est ici que les templates enfants injecteront leurs propres scripts #}
     {% block scripts %}{% endblock %}
 </body>
-
 </html>
