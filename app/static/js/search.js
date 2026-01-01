@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { map.invalidateSize(); }, 200);
     loadRides(null, null);
 
-    // --- RECHERCHE ADRESSE ---
     const searchInput = document.getElementById('search-input');
     searchInput.addEventListener('change', async function(e) {
         const query = e.target.value;
@@ -22,10 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.features && data.features.length > 0) {
                     const [lon, lat] = data.features[0].geometry.coordinates;
                     map.setView([lat, lon], 14);
-                    
                     if (destinationMarker) map.removeLayer(destinationMarker);
                     destinationMarker = L.marker([lat, lon]).addTo(map).bindPopup("Destination").openPopup();
-                    
                     loadRides(lat, lon);
                 }
             } catch (err) { console.error(err); }
@@ -48,9 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         div.className = "bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 mb-6 transition-all duration-200 relative hover:shadow-lg cursor-pointer";
                         let distanceHtml = ride.distance > 0 ? `<span class="absolute top-2 right-2 text-[10px] font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">${ride.distance.toFixed(1)} km</span>` : '';
 
+                        // ONCLICK AJOUTÉ
                         div.innerHTML = `
                             ${distanceHtml}
-                            <div class="md:flex md:items-center gap-4">
+                            <div class="md:flex md:items-center gap-4" onclick="showRoute(${ride.start_lat}, ${ride.start_lon}, ${ride.end_lat}, ${ride.end_lon})">
                                 <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
                                     <span class="text-xs font-bold uppercase">${ride.date_month}</span>
                                     <span class="text-2xl font-bold">${ride.date_day}</span>
@@ -63,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div><div class="text-sm text-slate-500">Arrivée</div><div class="font-medium text-slate-900 leading-tight">${ride.arrival}<span class="block text-xs text-slate-600 mt-1">${ride.time_end}</span></div></div>
                                 </div>
                                 <div class="flex flex-col items-end gap-2 mt-4 md:mt-0">
-                                    <button onclick="alert('Bientôt disponible')" class="bg-gray-400 text-white font-medium px-4 py-2 rounded-md shadow-sm text-sm whitespace-nowrap">Réserver</button>
+                                    <button onclick="event.stopPropagation(); alert('Bientôt disponible')" class="bg-gray-400 text-white font-medium px-4 py-2 rounded-md shadow-sm text-sm whitespace-nowrap">Réserver</button>
                                 </div>
                             </div>
                         `;
@@ -74,4 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
     }
+
+    // FONCTION ROUTE
+    window.showRoute = function(lat1, lon1, lat2, lon2) {
+        if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+        routeMarkers.forEach(m => map.removeLayer(m));
+        routeMarkers = [];
+
+        if(lat1 && lon1 && lat2 && lon2) {
+            routingControl = L.Routing.control({
+                waypoints: [L.latLng(lat1, lon1), L.latLng(lat2, lon2)],
+                routeWhileDragging: false,
+                lineOptions: { styles: [{color: '#4f46e5', weight: 6}] },
+                createMarker: () => null 
+            }).addTo(map);
+
+            let m1 = L.marker([lat1, lon1]).addTo(map).bindPopup("Départ");
+            let m2 = L.marker([lat2, lon2]).addTo(map).bindPopup("Arrivée");
+            routeMarkers.push(m1, m2);
+        }
+    };
 });
