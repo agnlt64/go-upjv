@@ -9,7 +9,6 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     if current_user.is_authenticated:
-        # Redirection vers la recherche si connecté
         return redirect(url_for('main.search_ride'))
     return render_template('index.html')
 
@@ -41,15 +40,12 @@ def offer_ride():
 @login_required
 def my_reservations():
     now = datetime.now()
-
     # Séparation des trajets à venir et passés
     upcoming_rides = Ride.query.filter(Ride.date > now).order_by(Ride.date.asc()).all()
     past_rides = Ride.query.filter(Ride.date < now).order_by(Ride.date.asc()).all()
+    return render_template('my_reservations.html', upcoming_rides=upcoming_rides, past_rides=past_rides)
 
-    return render_template('my_reservations.html', 
-                           upcoming_rides=upcoming_rides, 
-                           past_rides=past_rides)
-
+# --- AJOUT DE LA ROUTE MANQUANTE ---
 @main.route('/search-ride')
 @login_required
 def search_ride():
