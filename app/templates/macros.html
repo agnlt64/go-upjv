@@ -117,3 +117,28 @@
 
 </article>
 {% endmacro %}
+
+{% macro offer_ride(sys_name, label) %}
+<div id="container-{{ sys_name }}" 
+     class="border-b-2 border-gray-200 pb-2 transition-all duration-300 group">
+    
+    {# En-tête cliquable #}
+    <div onclick="toggleInput('{{ sys_name }}')" class="flex justify-between items-center cursor-pointer">
+        <span class="text-gray-400 font-bold text-xl group-hover:text-indigo-500 transition-colors">
+            {{ label }}
+        </span>
+
+        <div class="bg-gray-100 rounded-md p-2 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+            <svg id="icon-{{ sys_name }}" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </div>
+
+    {# Zone de contenu caché (l'input sera inséré ici grâce à caller()) #}
+    <div id="input-area-{{ sys_name }}" class="hidden mt-3">
+        {{ caller() }}
+    </div>
+
+</div>
+{% endmacro %}
