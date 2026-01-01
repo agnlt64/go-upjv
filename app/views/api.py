@@ -1,9 +1,11 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template
+from datetime import datetime, timedelta
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.models import User, Ride
-from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password
+# MODIF IMPORTS : Ajout Location et distance
+from app.models import User, Ride, Location
+from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
 
 api = Blueprint('api', __name__)
@@ -16,7 +18,6 @@ def toggle_user_status(user_id):
     user = User.query.get_or_404(user_id)
     user.is_active = not user.is_active
     db.session.commit()
-    
     return success('ok')
 
 @api.route('/toggle-admin/<int:user_id>', methods=['POST'])
@@ -27,7 +28,6 @@ def toggle_admin_role(user_id):
     user = User.query.get_or_404(user_id)
     user.is_admin = not user.is_admin
     db.session.commit()
-    
     return success('ok')
 
 @api.route('/login', methods=['POST'])
@@ -53,7 +53,6 @@ def login():
 def sign_up():
     password = request.form.get('password')
     confirm = request.form.get('confirm_password')
-
     user = user_from_request()
 
     if user.exists():
@@ -146,3 +145,50 @@ def change_password():
     
     flash('Password changed successfully', 'success')
     return redirect(url_for('main.user_profile'))
+
+# --- NOUVEAU : API LECTURE ---
+@api.route('/search-rides', methods=['GET'])
+@login_required
+def search_rides():
+    now = datetime.now()
+    user_lat = request.args.get('lat', type=float)
+    user_lon = request.args.get('lon', type=float)
+
+    rides_query = Ride.query.filter(Ride.date >= now, Ride.seats > 0).all()
+    results = []
+    
+    for ride in rides_query:
+        dist_km = 0
+        if user_lat and user_lon and ride.start_location:
+            user_loc = Location(lat=user_lat, lon=user_lon)
+            dist_km = distance(user_loc, ride.start_location)
+
+        driver_name = f"{ride.driver.first_name} {ride.driver.last_name}" if ride.driver else "Inconnu"
+        start_name = ride.start_location.name if ride.start_location else "Départ inconnu"
+        end_name = ride.end_location.name if ride.end_location else "Arrivée inconnue"
+        
+        results.append({
+            'id': ride.id,
+            'driver_name': driver_name,
+            'date_day': ride.date.strftime('%d'),
+            'date_month': ride.date.strftime('%b'),
+            'date_year': ride.date.strftime('%Y'),
+            'time_start': ride.date.strftime('%H:%M'),
+            'time_end': (ride.date + timedelta(hours=1)).strftime('%H:%M'),
+            'departure': start_name,
+            'arrival': end_name,
+            'start_lat': ride.start_location.lat if ride.start_location else None,
+            'start_lon': ride.start_location.lon if ride.start_location else None,
+            'end_lat': ride.end_location.lat if ride.end_location else None,
+            'end_lon': ride.end_location.lon if ride.end_location else None,
+            'seats': ride.seats,
+            'distance': dist_km
+        })
+
+    if user_lat and user_lon:
+        results.sort(key=lambda x: x['distance'])
+        results = results[:5]
+    else:
+        results.sort(key=lambda x: (x['date_year'], x['date_month'], x['date_day'], x['time_start']))
+
+    return jsonify({'success': True, 'rides': results})
