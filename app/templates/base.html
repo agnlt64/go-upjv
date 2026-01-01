@@ -63,8 +63,6 @@
     </footer> -->
 
     {# C'est ici que les templates enfants injecteront leurs propres scripts #}
-    {% block scripts %}
-    <script src="{{ url_for('static', filename='js/offer_ride.js') }}"></script>
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>
