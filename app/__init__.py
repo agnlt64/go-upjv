@@ -10,6 +10,13 @@ def create_app(*, config_name: str = DEFAULT) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
+     # S'assurer qu'une URI de base de données est fournie, sinon raise une erreur
+    if not app.config.get('SQLALCHEMY_DATABASE_URI'):
+        raise RuntimeError(
+            "SQLALCHEMY_DATABASE_URI must be set. Set DEV_DATABASE_URL or DATABASE_URL "
+            "or provide a variables.env file."
+        )
+
     db.init_app(app)
 
     with app.app_context():
