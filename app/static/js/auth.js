@@ -1,163 +1,135 @@
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        const form = document.querySelector('form');
-        if (!form) return;
+    const form = document.querySelector('form');
+    if (!form) return;
 
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const inputs = form.querySelectorAll('input');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const inputs = form.querySelectorAll('input');
 
-        // --- FONCTIONS D'AFFICHAGE ---
+    // Regex patterns (from utils.py)
+    const UPJV_ID_REGEX = /^[a-zA-Z][0-9]{8}$/;
+    const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?!.*\s)(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    const EMAIL_REGEX = /^[a-zA-Z]+\.[a-zA-Z]+@([a-zA-Z0-9-]+\.)?u-picardie\.fr$/;
+    const PHONE_REGEX = /^[0-9]{10}$/;
 
-        const showError = (input, message) => {
-            let existingError = input.nextElementSibling;
-            
-            if (existingError && existingError.classList.contains('error-msg')) {
-                existingError.innerText = message;
-            } else {
-                const errorDiv = document.createElement('p');
-                errorDiv.className = 'error-msg text-red-500 text-xs mt-1 font-medium ml-1';
-                errorDiv.innerText = message;
-                input.parentNode.insertBefore(errorDiv, input.nextSibling);
-            }
-            
-            input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-            input.classList.remove('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
-        };
+    // Field references (cached for performance)
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm_password');
 
-        const clearError = (input) => {
-            const existingError = input.nextElementSibling;
-            if (existingError && existingError.classList.contains('error-msg')) {
-                existingError.remove();
-            }
-            input.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
-            input.classList.add('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
-        };
+    const showError = (input, message) => {
+        const existingError = input.nextElementSibling;
 
-        // --- VALIDATION ---
+        if (existingError?.classList.contains('error-msg')) {
+            existingError.innerText = message;
+        } else {
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'error-msg text-red-500 text-xs mt-1 font-medium ml-1';
+            errorDiv.innerText = message;
+            input.parentNode.insertBefore(errorDiv, input.nextSibling);
+        }
 
-        const validateInput = (input) => {
-            const value = input.value;
-            const id = input.id;
-            let isValid = true;
-            let errorMessage = "";
+        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+        input.classList.remove('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
+    };
 
-            try {
-                if (input.hasAttribute('required') && value.trim() === '') {
-                    return false; 
+    const clearError = (input) => {
+        const existingError = input.nextElementSibling;
+        if (existingError?.classList.contains('error-msg')) {
+            existingError.remove();
+        }
+        input.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+        input.classList.add('border-gray-300', 'focus:border-blue-500', 'focus:ring-blue-500');
+    };
+
+    const validateInput = (input) => {
+        const value = input.value.trim();
+        const id = input.id;
+
+        if (input.hasAttribute('required') && value === '') {
+            return false;
+        }
+
+        let errorMessage = '';
+
+        switch (id) {
+            case 'upjv_id':
+                if (!UPJV_ID_REGEX.test(value)) {
+                    errorMessage = 'Identifiant invalide (1 lettre + 8 chiffres).';
                 }
+                break;
 
-                if (id === 'upjv_id') {
-                    if (value.trim().length < 3) {
-                        isValid = false;
-                        errorMessage = "Identifiant invalide.";
-                    }
+            case 'email':
+                if (!EMAIL_REGEX.test(value)) {
+                    errorMessage = 'Email invalide (format: prenom.nom@u-picardie.fr).';
                 }
+                break;
 
-                if (id === 'email') {
-                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
-                        isValid = false;
-                        errorMessage = "Email invalide.";
-                    }
+            case 'phone_number':
+                if (!PHONE_REGEX.test(value)) {
+                    errorMessage = 'Numéro invalide (10 chiffres).';
                 }
-
-                if (id === 'phone_number') {
-                    const cleanPhone = value.replace(/\D/g, '');
-                    if (cleanPhone.length < 10) {
-                        isValid = false;
-                        errorMessage = "Numéro invalide (10 chiffres).";
-                    } else if (cleanPhone.length > 10) {
-                        isValid = false;
-                        errorMessage = "Numéro trop long (max 10 chiffres).";
-                    }
+                break;
+ 
+            case 'password':
+                if (!PASSWORD_REGEX.test(input.value)) {
+                    const errors = [];
+                    if (input.value.length < 8) errors.push('8 caractères');
+                    if (!/[a-zA-Z]/.test(input.value)) errors.push('1 lettre');
+                    if (/\s/.test(input.value)) errors.push("pas d'espaces");
+                    if (!/\d/.test(input.value)) errors.push('1 chiffre');
+                    if (!/[!@#$%^&*(),.?":{}|<>]/.test(input.value)) errors.push('1 caractère spécial');
+                    errorMessage = 'Manque : ' + errors.join(', ');
                 }
+                break;
 
-                if (id === 'password') {
-                    const isSignUp = document.getElementById('confirm_password') !== null;
-
-                    if (isSignUp) {
-                        let errors = [];
-                        
-                        if (value.length < 8) errors.push("8 caractères");
-                        if (!/[A-Z]/.test(value)) errors.push("1 majuscule");
-                        if (!/\d/.test(value)) errors.push("1 chiffre");
-                        if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) errors.push("1 caractère spécial");
-
-                        if (errors.length > 0) {
-                            isValid = false;
-                            errorMessage = "Manque : " + errors.join(", ");
-                        }
-                    } else {
-                         if (value.length < 1) isValid = false;
-                    }
+            case 'confirm_password':
+                if (passwordInput && input.value !== passwordInput.value) {
+                    errorMessage = 'Les mots de passe ne correspondent pas.';
                 }
+                break;
+        }
 
-                if (id === 'confirm_password') {
-                    const passwordInput = document.getElementById('password');
-                    if (passwordInput && value !== passwordInput.value) {
-                        isValid = false;
-                        errorMessage = "Les mots de passe ne correspondent pas.";
-                    }
-                }
+        if (errorMessage) {
+            showError(input, errorMessage);
+            return false;
+        }
 
-                if (!isValid && errorMessage !== "") {
-                    showError(input, errorMessage);
-                } else if (isValid) {
-                    clearError(input);
-                }
+        clearError(input);
+        return true;
+    };
 
-                return isValid;
-
-            } catch (err) {
-                console.error(err);
-                return false;
-            }
-        };
-
-        // --- ÉTAT DU FORMULAIRE ---
-
-        const checkFormValidity = () => {
-            let formIsValid = true;
-            inputs.forEach(input => {
-                if (input.hasAttribute('required') && input.value.trim() === '') formIsValid = false;
-                if (input.classList.contains('border-red-500')) formIsValid = false;
-            });
-
-            if (formIsValid) {
-                submitBtn.removeAttribute('disabled');
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                submitBtn.classList.add('hover:translate-x-1', 'cursor-pointer');
-            } else {
-                submitBtn.setAttribute('disabled', 'true');
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                submitBtn.classList.remove('hover:translate-x-1', 'cursor-pointer');
-            }
-        };
-
-        // --- ÉCOUTEURS ---
+    const checkFormValidity = () => {
+        let formIsValid = true;
 
         inputs.forEach(input => {
-            input.addEventListener('input', () => {
-                validateInput(input);
-                if (input.id === 'password') {
-                    const confirmInput = document.getElementById('confirm_password');
-                    if (confirmInput && confirmInput.value !== '') validateInput(confirmInput);
-                }
-                checkFormValidity();
-            });
-
-            input.addEventListener('blur', () => {
-                if (input.hasAttribute('required') && input.value.trim() === '') {
-                    showError(input, "Ce champ est requis.");
-                } else {
-                    validateInput(input);
-                }
-                checkFormValidity();
-            });
+            if (input.hasAttribute('required') && input.value.trim() === '') formIsValid = false;
+            if (input.classList.contains('border-red-500')) formIsValid = false;
         });
 
-        checkFormValidity();
+        submitBtn.disabled = !formIsValid;
+        submitBtn.classList.toggle('opacity-50', !formIsValid);
+        submitBtn.classList.toggle('cursor-not-allowed', !formIsValid);
+        submitBtn.classList.toggle('hover:translate-x-1', formIsValid);
+        submitBtn.classList.toggle('cursor-pointer', formIsValid);
+    };
 
-    } catch (e) {
-        console.error("Auth JS Error:", e);
-    }
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            validateInput(input);
+            if (input.id === 'password' && confirmInput?.value) {
+                validateInput(confirmInput);
+            }
+            checkFormValidity();
+        });
+
+        input.addEventListener('blur', () => {
+            if (input.hasAttribute('required') && input.value.trim() === '') {
+                showError(input, 'Ce champ est requis.');
+            } else {
+                validateInput(input);
+            }
+            checkFormValidity();
+        });
+    });
+
+    checkFormValidity();
 });

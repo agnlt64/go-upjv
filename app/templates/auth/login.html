@@ -38,5 +38,8 @@
 
     <img src="{{ url_for('static', filename='media/car.png') }}" alt="Voiture" class="w-1/2 h-full object-cover block">
 </main>
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 {% endblock %}
