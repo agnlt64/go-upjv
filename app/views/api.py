@@ -52,7 +52,7 @@ def sign_up():
     confirm = request.form.get('confirm_password')
     user = user_from_request()
     if user.exists():
-        flash('UPJV ID or email already in use', 'error')
+        flash('UPJV ID already in use', 'error')
         return render_template('auth/sign_up.html', user=user)
     if password != confirm:
         flash('Passwords do not match', 'error')
