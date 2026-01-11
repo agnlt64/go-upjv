@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (id === 'upjv_id') {
                     if (value.trim().length < 3) {
                         isValid = false;
-                        errorMessage = "Identifiant trop court.";
+                        errorMessage = "Identifiant invalide.";
                     }
                 }
 
@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (cleanPhone.length < 10) {
                         isValid = false;
                         errorMessage = "Numéro invalide (10 chiffres).";
+                    } else if (cleanPhone.length > 10) {
+                        isValid = false;
+                        errorMessage = "Numéro trop long (max 10 chiffres).";
                     }
                 }
 
