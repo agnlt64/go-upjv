@@ -2,9 +2,9 @@
    1. GESTION VISUELLE (TIROIRS)
    ========================================== */
 function toggleInput(label) {
-    const inputArea = document.getElementById('input-area-' + label);
-    const icon = document.getElementById('icon-' + label);
-    const container = document.getElementById('container-' + label);
+    const inputArea = document.getElementById(`input-area-${label}`);
+    const icon = document.getElementById(`icon-${label}`);
+    const container = document.getElementById(`container-${label}`);
 
     if (!inputArea) return;
 
