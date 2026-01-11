@@ -141,7 +141,20 @@
                     </div>
                 </div>
 
-                <form action="{{ url_for('api.delete_vehicle') }}" method="POST" class="mt-6 pt-6 border-t border-gray-200 flex justify-end">
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600 mb-2">Photo du véhicule</p>
+                    {% if user.vehicle.image_path %}
+                    <img src="{{ url_for('static', filename='uploads/vehicles/' + user.vehicle.image_path) }}"
+                        alt="{{ user.vehicle.model }}" class="w-full h-48 object-cover rounded-lg shadow-sm">
+                    {% else %}
+                    <div class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <p class="text-gray-400 text-sm">Aucune photo</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form action="{{ url_for('api.delete_vehicle') }}" method="POST"
+                    class="mt-6 pt-6 border-t border-gray-200 flex justify-end">
                     <button type="submit" id="deleteVehicleBtn"
                         class="p-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-all">
                         {{ trash_icon() }}
@@ -149,7 +162,8 @@
                 </form>
             </div>
 
-            <form action="{{ url_for('api.update_vehicle') }}" method="PATCH" id="vehicleForm" class="hidden">
+            <form action="{{ url_for('api.update_vehicle') }}" method="POST" id="vehicleForm" class="hidden"
+                enctype="multipart/form-data">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="vehicle_model" class="block text-sm font-medium text-gray-700 mb-2">
@@ -181,9 +195,17 @@
                         <label for="vehicle_max_seats" class="block text-sm font-medium text-gray-700 mb-2">
                             Nombre de places <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" id="vehicle_max_seats" name="max_seats" value="{{ user.vehicle.max_seats }}"
-                            min="1" max="8" required
+                        <input type="number" id="vehicle_max_seats" name="max_seats"
+                            value="{{ user.vehicle.max_seats }}" min="1" max="8" required
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="vehicle_image" class="block text-sm font-medium text-gray-700 mb-2">
+                            Photo du véhicule
+                        </label>
+                        <input type="file" id="vehicle_image" name="vehicle_image" accept="image/*"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
                 </div>
 
@@ -215,7 +237,8 @@
                 </div>
             </div>
 
-            <form action="{{ url_for('api.add_vehicle') }}" method="POST" id="addVehicleForm" class="hidden">
+            <form action="{{ url_for('api.add_vehicle') }}" method="POST" id="addVehicleForm" class="hidden"
+                enctype="multipart/form-data">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="new_vehicle_model" class="block text-sm font-medium text-gray-700 mb-2">
@@ -249,6 +272,14 @@
                         <input type="number" id="new_vehicle_max_seats" name="max_seats" min="1" max="8" required
                             placeholder="Ex: 4"
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="new_vehicle_image" class="block text-sm font-medium text-gray-700 mb-2">
+                            Photo du véhicule
+                        </label>
+                        <input type="file" id="new_vehicle_image" name="vehicle_image" accept="image/*"
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
                 </div>
 

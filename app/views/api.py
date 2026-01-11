@@ -1,13 +1,31 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify, current_app
 from flask_login import login_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+import uuid
+import os
 
 from app.models import User, Ride
 from app.models.location import Location
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
 from flask import jsonify, request
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_vehicle_image(file):
+    if file and file.filename and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4()}_{filename}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'vehicles')
+        os.makedirs(upload_folder, exist_ok=True)
+        file.save(os.path.join(upload_folder, unique_filename))
+        return unique_filename
+    return None
 
 api = Blueprint('api', __name__)
 
@@ -81,6 +99,18 @@ def update_vehicle():
     vehicle = vehicle_from_request()
     if vehicle.is_valid():
         update(current_user.vehicle, vehicle)
+        
+        # Handle image upload
+        if 'vehicle_image' in request.files:
+            image_path = save_vehicle_image(request.files['vehicle_image'])
+            if image_path:
+                # Delete old image if exists
+                if current_user.vehicle.image_path:
+                    old_path = os.path.join(current_app.root_path, 'static', 'uploads', 'vehicles', current_user.vehicle.image_path)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                current_user.vehicle.image_path = image_path
+        
         db.session.commit()
         flash('Vehicle updated successfully', 'success')
     return redirect(url_for('main.user_profile'))
@@ -90,6 +120,12 @@ def update_vehicle():
 def add_vehicle():
     vehicle = vehicle_from_request()
     if vehicle.is_valid():
+        # Handle image upload
+        if 'vehicle_image' in request.files:
+            image_path = save_vehicle_image(request.files['vehicle_image'])
+            if image_path:
+                vehicle.image_path = image_path
+        
         vehicle.owner_id = current_user.id
         db.session.add(vehicle)
         db.session.commit()
