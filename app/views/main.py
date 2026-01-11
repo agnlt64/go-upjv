@@ -38,77 +38,60 @@ def user_profile():
 @main.route('/offer-ride', methods=['GET', 'POST'])
 @login_required
 def offer_ride():
-    # 1. TRAITEMENT DU FORMULAIRE (POST)
     if request.method == 'POST':
         try:
-            # Récupération des champs visibles
+            # Récupération des données
             nom_depart = request.form.get('start_location')
             nom_arrivee = request.form.get('end_location')
-            date_str = request.form.get('ride_date')
-            heure_str = request.form.get('departure_time')
-            seats = request.form.get('seats')
-
-            # --- MODIFICATION 1 : Récupération des coordonnées cachées ---
-            # On récupère ce que le JS a mis dans les input hidden
+            
+            # Récupération des Coordonnées (C'est ça le plus important)
             lat_dep_str = request.form.get('start_lat')
             lon_dep_str = request.form.get('start_lon')
             lat_arr_str = request.form.get('end_lat')
             lon_arr_str = request.form.get('end_lon')
 
-            # Sécurité : Champs visibles vides
-            if not all([nom_depart, nom_arrivee, date_str, heure_str, seats]):
-                flash("Veuillez remplir tous les champs obligatoires.", "error")
+        
+            if not lat_dep_str or not lon_dep_str:
+                flash("Veuillez ajouter une adresse de départ valide (cliquez sur une suggestion).", "error")
                 return redirect(url_for('main.offer_ride'))
+            
+            if not lat_arr_str or not lon_arr_str:
+                flash("Veuillez ajouter une adresse d'arrivée valide (cliquez sur une suggestion).", "error")
+                return redirect(url_for('main.offer_ride'))
+            # ---------------------------
 
-            # Conversion Date/Heure
+            # Reste du code (Date, Heure, etc.)
+            date_str = request.form.get('ride_date')
+            heure_str = request.form.get('departure_time')
+            seats = request.form.get('seats')
+            
             date_heure_depart = datetime.strptime(f"{date_str} {heure_str}", '%Y-%m-%d %H:%M')
 
-            # --- MODIFICATION 2 : Gestion Intelligente du Lieu Départ ---
+            # Gestion Lieu Départ (Plus besoin de valeur par défaut !)
             lieu_depart = Location.query.filter_by(name=nom_depart).first()
-            
             if not lieu_depart:
-                # Si le lieu n'existe pas, on le crée avec les VRAIES coordonnées
-                # Si le JS n'a rien renvoyé (pas de clic), on met une valeur par défaut (Amiens)
-                final_lat = float(lat_dep_str) if lat_dep_str else 49.8942
-                final_lon = float(lon_dep_str) if lon_dep_str else 2.2958
-                
                 lieu_depart = Location(
                     name=nom_depart, 
-                    lat=final_lat,   # <--- On utilise la variable
-                    lon=final_lon,   # <--- On utilise la variable
+                    lat=float(lat_dep_str),  # On est sûr que ça existe grâce au if au-dessus
+                    lon=float(lon_dep_str), 
                     desc="Ajouté par utilisateur"
                 )
                 db.session.add(lieu_depart)
-                db.session.flush()
-            else:
-                # (Optionnel) Si le lieu existe déjà, on pourrait mettre à jour ses coordonnées
-                # si l'utilisateur a sélectionné une adresse plus précise.
-                if lat_dep_str and lon_dep_str:
-                    lieu_depart.lat = float(lat_dep_str)
-                    lieu_depart.lon = float(lon_dep_str)
-
-            # --- MODIFICATION 3 : Gestion Intelligente du Lieu Arrivée ---
-            lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
             
+            # Gestion Lieu Arrivée
+            lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
             if not lieu_arrivee:
-                final_lat_arr = float(lat_arr_str) if lat_arr_str else 49.8942
-                final_lon_arr = float(lon_arr_str) if lon_arr_str else 2.2958
-                
                 lieu_arrivee = Location(
                     name=nom_arrivee, 
-                    lat=final_lat_arr, 
-                    lon=final_lon_arr, 
+                    lat=float(lat_arr_str), 
+                    lon=float(lon_arr_str), 
                     desc="Ajouté par utilisateur"
                 )
                 db.session.add(lieu_arrivee)
-                db.session.flush() 
-            else:
-                # Mise à jour optionnelle
-                if lat_arr_str and lon_arr_str:
-                    lieu_arrivee.lat = float(lat_arr_str)
-                    lieu_arrivee.lon = float(lon_arr_str)
+            
+            db.session.commit() # On commit les lieux avant le trajet
 
-            # Création du Trajet
+            # Création du trajet
             new_ride = Ride(
                 driver_id=current_user.id,
                 start_location_id=lieu_depart.id,
@@ -121,24 +104,17 @@ def offer_ride():
             db.session.commit()
 
             flash('Trajet publié avec succès !', 'success')
-            return redirect(url_for('main.offer_ride')) 
+            return redirect(url_for('main.offer_ride'))
 
         except Exception as e:
             db.session.rollback()
-            flash(f"Erreur technique : {str(e)}", 'error')
-            print(f"DEBUG ERROR: {e}")
+            flash(f"Erreur : {str(e)}", 'error')
 
-    # 2. AFFICHAGE DE LA PAGE
+    # Partie GET
     suggestions = Location.query.limit(3).all()
+    mes_trajets = Ride.query.filter(Ride.driver_id == current_user.id).all()
     
-    mes_trajets = Ride.query.filter(
-        Ride.driver_id == current_user.id,        
-        Ride.date >= datetime.now()
-    ).order_by(Ride.date.asc()).all()             
-    
-    return render_template('offer_ride.html', 
-                           lieux_bdd=suggestions,
-                           mes_trajets=mes_trajets)
+    return render_template('offer_ride.html', lieux_bdd=suggestions, mes_trajets=mes_trajets)
 
 @main.route('/my-reservations')
 @login_required

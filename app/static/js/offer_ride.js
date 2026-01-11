@@ -1,7 +1,6 @@
 /* ==========================================
-   1. GESTION DE L'INTERFACE (OUVERTURE/FERMETURE)
+   1. GESTION VISUELLE (TIROIRS)
    ========================================== */
-
 function toggleInput(label) {
     const inputArea = document.getElementById('input-area-' + label);
     const icon = document.getElementById('icon-' + label);
@@ -10,31 +9,17 @@ function toggleInput(label) {
     if (!inputArea) return;
 
     if (inputArea.classList.contains('hidden')) {
-        // --- OUVERTURE ---
         inputArea.classList.remove('hidden');
-        
         if(icon) icon.classList.add('rotate-180');
-        
         if(container) {
             container.classList.add('border-indigo-500');
             container.classList.remove('border-gray-200');
         }
-
-        // Focus automatique sur le champ
         const inputField = inputArea.querySelector('input');
-        if (inputField) {
-            inputField.focus();
-            if (inputField.type === 'date' || inputField.type === 'time') {
-                try { inputField.showPicker(); } catch (e) {}
-            }
-        }
-
+        if (inputField) inputField.focus();
     } else {
-        // --- FERMETURE ---
         inputArea.classList.add('hidden');
-        
         if(icon) icon.classList.remove('rotate-180');
-
         if(container) {
             container.classList.remove('border-indigo-500');
             container.classList.add('border-gray-200');
@@ -42,114 +27,135 @@ function toggleInput(label) {
     }
 }
 
-
 /* ==========================================
-   2. GESTION DE LA SÉLECTION D'ADRESSE
+   2. SÉLECTION D'UNE ADRESSE (VALIDATION)
    ========================================== */
-
 function selectLocation(type, name, lat, lng) {
-    // 1. Remplir le champ visible
     const inputVisible = document.getElementById('input-' + type);
-    if (inputVisible) {
-        inputVisible.value = name;
-    }
-
-    // 2. Remplir les champs cachés (Latitude / Longitude)
     const inputLat = document.getElementById('lat-' + type);
     const inputLng = document.getElementById('lng-' + type);
-    
-    // Note : On s'assure que ce sont des nombres
+    const container = document.getElementById('suggestions-' + type);
+    const errorMsg = document.getElementById('error-' + type); // Le message d'erreur
+
+    // 1. On remplit les données
+    if (inputVisible) inputVisible.value = name;
     if (inputLat) inputLat.value = lat;
     if (inputLng) inputLng.value = lng;
 
-    console.log(`📍 Sélectionné pour ${type}: ${name} (${lat}, ${lng})`);
+    // 2. On change le style en VERT (Validé)
+    if (inputVisible) {
+        inputVisible.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        inputVisible.classList.add('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
+    }
 
-    // 3. Vider la liste des suggestions
-    const container = document.getElementById(`suggestions-${type}`);
+    // 3. On cache le message d'erreur s'il était là
+    if (errorMsg) errorMsg.classList.add('hidden');
+
+    // 4. On vide la liste
     if (container) container.innerHTML = '';
 }
 
-
 /* ==========================================
-   3. RECHERCHE API GOUVERNEMENT (BAN)
+   3. RECHERCHE (INVALIDATION AUTOMATIQUE)
    ========================================== */
-
 let searchTimeout = null;
 
 async function searchCities(type, query) {
     const container = document.getElementById(`suggestions-${type}`);
+    const inputVisible = document.getElementById('input-' + type);
     
-    // Si moins de 3 lettres, on vide et on arrête
+    // --- IMPORTANT : DÈS QU'ON TAPE, C'EST INVALIDE ---
+    document.getElementById('lat-' + type).value = ""; // On vide la latitude
+    document.getElementById('lng-' + type).value = ""; // On vide la longitude
+    
+    // On enlève le vert (retour au gris normal)
+    if (inputVisible) {
+        inputVisible.classList.remove('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
+        inputVisible.classList.remove('border-red-500'); // On enlève le rouge aussi pour l'instant
+    }
+    // --------------------------------------------------
+
     if (!query || query.length < 3) {
         if(container) container.innerHTML = '';
         return;
     }
 
-    // On annule la recherche précédente si l'utilisateur tape encore
     if (searchTimeout) clearTimeout(searchTimeout);
 
-    // On attend 200ms avant de lancer la requête (debounce)
     searchTimeout = setTimeout(async () => {
-        
-        container.innerHTML = '<div class="p-2 text-xs text-indigo-500 font-bold animate-pulse">Recherche en cours...</div>';
-
+        container.innerHTML = '<div class="p-2 text-xs text-indigo-500 font-bold">Recherche...</div>';
         try {
+            // Recherche restreinte à Amiens (80021)
             const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&citycode=80021&limit=5`;
             const response = await fetch(url);
             const data = await response.json();
             
-            // On prépare le HTML
-            let htmlContent = '<div class="w-full px-2 py-1 text-xs text-gray-400 font-bold uppercase tracking-wider">Suggestions :</div>';
+            let htmlContent = '';
 
             if (data.features && data.features.length > 0) {
                 data.features.forEach(feature => {
-                    const label = feature.properties.label;     // Ex: "8 Boulevard du Port, Amiens"
-                    const lon = feature.geometry.coordinates[0]; // Attention API BAN = [Lon, Lat]
-                    const lat = feature.geometry.coordinates[1]; 
-
-                    if (label.endsWith(',')) label = label.slice(0, -1);
-
-                    const safeName = feature.properties.label.replace(/'/g, "\\'");
+                    let label = feature.properties.label;
+                    const lon = feature.geometry.coordinates[0];
+                    const lat = feature.geometry.coordinates[1];
+                    const safeName = label.replace(/'/g, "\\'"); 
 
                     htmlContent += `
                         <button type="button" 
                                 onclick="selectLocation('${type}', '${safeName}', ${lat}, ${lon})"
-                                class="w-full text-left bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 border-b last:border-0 border-gray-100 px-4 py-3 transition-colors duration-150 flex items-center group">
-                            <svg class="w-4 h-4 mr-3 text-gray-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span class="truncate font-medium text-sm">${label}</span>
-                        </button>
-                    `;
+                                class="w-full text-left bg-white hover:bg-indigo-50 text-gray-700 p-3 border-b border-gray-100 text-sm">
+                            ${label}
+                        </button>`;
                 });
             } else {
-                htmlContent = '<div class="p-2 text-xs text-gray-400 italic">Aucune adresse trouvée</div>';
+                htmlContent = '<div class="p-2 text-xs text-gray-400 italic">Adresse inconnue à Amiens</div>';
             }
-            
             container.innerHTML = htmlContent;
-
-        } catch (error) {
-            console.error("Erreur API :", error);
-            container.innerHTML = '<div class="p-2 text-xs text-red-400">Erreur de connexion</div>';
-        }
-
+        } catch (error) { console.error(error); }
     }, 200);
 }
 
-
 /* ==========================================
-   4. INITIALISATION (DATE DU JOUR)
+   4. VALIDATION AU CLIC SUR "METTRE EN LIGNE"
    ========================================== */
+document.querySelector('form').addEventListener('submit', function(event) {
+    let isValid = true;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('input-jour');
+    // Vérification DÉPART
+    const latDepart = document.getElementById('lat-depart').value;
+    const inputDepart = document.getElementById('input-depart');
+    const errorDepart = document.getElementById('error-depart');
 
-    if (dateInput) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.setAttribute('min', today);
+    if (!latDepart) {
+        // C'est vide ou pas sélectionné -> ERREUR
+        event.preventDefault(); // On bloque l'envoi
+        isValid = false;
         
-        dateInput.addEventListener('input', function() {
-            if (this.value && this.value < today) {
-                this.value = today; 
-            }
-        });
+        // Style Rouge
+        inputDepart.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        // Afficher message
+        if (errorDepart) errorDepart.classList.remove('hidden');
+        
+        // On ouvre le tiroir pour montrer l'erreur
+        toggleInput('depart'); 
+    }
+
+    // Vérification ARRIVÉE
+    const latArrivee = document.getElementById('lat-arrivee').value;
+    const inputArrivee = document.getElementById('input-arrivee');
+    const errorArrivee = document.getElementById('error-arrivee');
+
+    if (!latArrivee) {
+        event.preventDefault();
+        isValid = false;
+        
+        inputArrivee.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        if (errorArrivee) errorArrivee.classList.remove('hidden');
+        
+        toggleInput('arrivee');
+    }
+
+    if (!isValid) {
+        // Scroll vers le haut pour voir l'erreur
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
