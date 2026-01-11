@@ -1,90 +1,200 @@
 function toggleInput(label) {
-    const inputArea = document.getElementById(`input-area-${label}`);
-    const icon = document.getElementById(`icon-${label}`);
-    const container = document.getElementById(`container-${label}`);
+    const inputArea = document.getElementById('input-area-' + label);
+    const icon = document.getElementById('icon-' + label);
+    const container = document.getElementById('container-' + label);
 
     if (!inputArea) return;
 
     if (inputArea.classList.contains('hidden')) {
         inputArea.classList.remove('hidden');
-
-        if (icon) icon.classList.add('rotate-180');
-
-        container.classList.add('border-indigo-500');
-        container.classList.remove('border-gray-200');
-
-        const inputField = inputArea.querySelector('input');
-        if (inputField) {
-            inputField.focus();
-            // Si c'est une date ou une heure, on essaie d'ouvrir le sélecteur natif
-            if (inputField.type === 'date' || inputField.type === 'time') {
-                try {
-                    inputField.showPicker();
-                } catch (e) {
-                    // Si le navigateur est trop vieux, il ne fera rien (pas grave)
-                }
-            }
+        if(icon) icon.classList.add('rotate-180');
+        if(container) {
+            container.classList.add('border-indigo-500');
+            container.classList.remove('border-gray-200');
         }
-
+        const inputField = inputArea.querySelector('input');
+        if (inputField) inputField.focus();
     } else {
         inputArea.classList.add('hidden');
-
-        if (icon) icon.classList.remove('rotate-180');
-
-        container.classList.remove('border-indigo-500');
-        container.classList.add('border-gray-200');
+        if(icon) icon.classList.remove('rotate-180');
+        if(container) {
+            container.classList.remove('border-indigo-500');
+            container.classList.add('border-gray-200');
+        }
     }
 }
 
-function selectLocation(fieldId, value) {
-    const input = document.getElementById(`input-${fieldId}`);
+function selectLocation(type, name, lat, lng) {
+    const inputVisible = document.getElementById('input-' + type);
+    const inputLat = document.getElementById('lat-' + type);
+    const inputLng = document.getElementById('lng-' + type);
+    const container = document.getElementById('suggestions-' + type);
+    const errorMsg = document.getElementById('error-' + type);
 
-    if (input) {
-        input.value = value;
+    if (inputVisible) inputVisible.value = name;
+    if (inputLat) inputLat.value = lat;
+    if (inputLng) inputLng.value = lng;
+
+    if (inputVisible) {
+        inputVisible.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        inputVisible.classList.add('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
+    }
+
+    if (errorMsg) errorMsg.classList.add('hidden');
+
+    if (container) container.innerHTML = '';
+}
+
+let searchTimeout = null;
+
+async function searchCities(type, query) {
+    const container = document.getElementById(`suggestions-${type}`);
+    const inputVisible = document.getElementById('input-' + type);
+    
+    document.getElementById('lat-' + type).value = ""; 
+    document.getElementById('lng-' + type).value = ""; 
+    
+    if (inputVisible) {
+        inputVisible.classList.remove('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
+        inputVisible.classList.remove('border-red-500'); 
+    }
+
+    if (!query || query.length < 3) {
+        if(container) container.innerHTML = '';
+        return;
+    }
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    searchTimeout = setTimeout(async () => {
+        container.innerHTML = '<div class="p-2 text-xs text-indigo-500 font-bold">Recherche...</div>';
+        try {
+            const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&citycode=80021&limit=5`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            let htmlContent = '';
+
+            if (data.features && data.features.length > 0) {
+                data.features.forEach(feature => {
+                    let label = feature.properties.label;
+                    const lon = feature.geometry.coordinates[0];
+                    const lat = feature.geometry.coordinates[1];
+                    const safeName = label.replace(/'/g, "\\'"); 
+
+                    htmlContent += `
+                        <button type="button" 
+                                onclick="selectLocation('${type}', '${safeName}', ${lat}, ${lon})"
+                                class="w-full text-left bg-white hover:bg-indigo-50 text-gray-700 p-3 border-b border-gray-100 text-sm">
+                            ${label}
+                        </button>`;
+                });
+            } else {
+                htmlContent = '<div class="p-2 text-xs text-gray-400 italic">Adresse inconnue à Amiens</div>';
+            }
+            container.innerHTML = htmlContent;
+        } catch (error) { console.error(error); }
+    }, 200);
+}
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    let isValid = true;
+
+    const latDepart = document.getElementById('lat-depart').value;
+    const lngDepart = document.getElementById('lng-depart').value;
+    const inputDepart = document.getElementById('input-depart');
+    const errorDepart = document.getElementById('error-depart');
+
+    const latArrivee = document.getElementById('lat-arrivee').value;
+    const lngArrivee = document.getElementById('lng-arrivee').value;
+    const inputArrivee = document.getElementById('input-arrivee');
+    const errorArrivee = document.getElementById('error-arrivee');
+
+    [inputDepart, inputArrivee].forEach(input => input.classList.remove('border-red-500'));
+    [errorDepart, errorArrivee].forEach(err => { if(err) err.classList.add('hidden'); });
+
+    if (!latDepart) {
+        event.preventDefault();
+        isValid = false;
+        showError(inputDepart, errorDepart, "Veuillez sélectionner une adresse valide.");
+        toggleInput('depart');
+    }
+
+    if (!latArrivee) {
+        event.preventDefault();
+        isValid = false;
+        showError(inputArrivee, errorArrivee, "Veuillez sélectionner une adresse valide.");
+        if (isValid) toggleInput('arrivee');
+    }
+
+    if (latDepart && latArrivee && latDepart === latArrivee && lngDepart === lngArrivee) {
+        event.preventDefault();
+        isValid = false;
+        showError(inputArrivee, errorArrivee, "L'arrivée doit être différente du départ !");
+        toggleInput('arrivee');
+    }
+
+    if (!isValid) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
+
+function showError(input, errorMsgElement, text) {
+    input.classList.remove('border-green-500', 'focus:ring-green-500'); 
+    input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500'); 
+    
+    if (errorMsgElement) {
+        errorMsgElement.innerText = text;
+        errorMsgElement.classList.remove('hidden');
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('input-jour');
+    const timeInput = document.getElementById('input-heure');
+    const errorHeure = document.getElementById('error-heure');
 
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
-
-        dateInput.addEventListener('input', function () {
-            if (this.value && this.value < today) {
-                this.value = today;
-            }
+        
+        dateInput.addEventListener('input', function() {
+            if (this.value && this.value < today) this.value = today;
+            verifierHeure();
         });
     }
-});
 
-async function searchCities(type, query) {
-    const container = document.getElementById(`suggestions-${type}`);
+    function verifierHeure() {
+        if (!dateInput.value || !timeInput.value) return;
 
-    if (query.length === 0) return;
+        const now = new Date();
+        const selectedDate = new Date(dateInput.value);
+        const today = new Date();
 
-    try {
-        const response = await fetch(`/api/recherche-villes?q=${query}`);
-        const villes = await response.json();
+        today.setHours(0,0,0,0);
+        selectedDate.setHours(0,0,0,0);
 
-        container.innerHTML = '<span class="text-xs text-gray-400 font-bold w-full mb-1 uppercase tracking-wider">Résultats :</span>';
+        if (selectedDate.getTime() === today.getTime()) {
+            const currentHour = now.getHours();
+            const currentMin = now.getMinutes();
+            const [selectedHour, selectedMin] = timeInput.value.split(':').map(Number);
 
-        if (villes.length > 0) {
-            villes.forEach(ville => {
-                const btnHTML = `
-                    <button type="button" 
-                            onclick="selectLocation('${type}', \`${ville.name}\`)"
-                            class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-sm font-medium px-3 py-1.5 rounded-full transition-colors duration-200">
-                        ${ville.name}
-                    </button>
-                `;
-                container.innerHTML += btnHTML;
-            });
+            if (selectedHour < currentHour || (selectedHour === currentHour && selectedMin < currentMin)) {
+                timeInput.value = ""; 
+                timeInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                if (errorHeure) errorHeure.classList.remove('hidden');
+            } else {
+                timeInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                if (errorHeure) errorHeure.classList.add('hidden');
+            }
         } else {
-            container.innerHTML += '<span class="text-xs text-gray-300 italic">Aucune ville trouvée</span>';
+            timeInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            if (errorHeure) errorHeure.classList.add('hidden');
         }
-    } catch (error) {
-        console.error("Erreur lors de la recherche :", error);
     }
-}
+
+    if (timeInput) {
+        timeInput.addEventListener('change', verifierHeure);
+        timeInput.addEventListener('input', verifierHeure);
+    }
+});

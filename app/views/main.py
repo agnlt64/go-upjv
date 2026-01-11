@@ -42,29 +42,61 @@ def user_profile():
 def offer_ride():
     if request.method == 'POST':
         try:
+            # Récupération des données
             nom_depart = request.form.get('start_location')
             nom_arrivee = request.form.get('end_location')
+            
+            # Récupération des Coordonnées 
+            lat_dep_str = request.form.get('start_lat')
+            lon_dep_str = request.form.get('start_lon')
+            lat_arr_str = request.form.get('end_lat')
+            lon_arr_str = request.form.get('end_lon')
+
+        
+            if not lat_dep_str or not lon_dep_str:
+                flash("Veuillez ajouter une adresse de départ valide (cliquez sur une suggestion).", "error")
+                return redirect(url_for('main.offer_ride'))
+            
+            if not lat_arr_str or not lon_arr_str:
+                flash("Veuillez ajouter une adresse d'arrivée valide (cliquez sur une suggestion).", "error")
+                return redirect(url_for('main.offer_ride'))
+            
+
+            if lat_dep_str == lat_arr_str and lon_dep_str == lon_arr_str:
+                flash("Le point de départ et d'arrivée ne peuvent pas être identiques.", "error")
+                return redirect(url_for('main.offer_ride'))
+
             date_str = request.form.get('ride_date')
             heure_str = request.form.get('departure_time')
             seats = request.form.get('seats')
-
-            if not all([nom_depart, nom_arrivee, date_str, heure_str, seats]):
-                flash("Veuillez remplir tous les champs obligatoires.", "error")
-                return redirect(url_for('main.offer_ride'))
-
+            
             date_heure_depart = datetime.strptime(f"{date_str} {heure_str}", '%Y-%m-%d %H:%M')
+
+            if date_heure_depart < datetime.now():
+                flash("Vous ne pouvez pas proposer un trajet dans le passé !", "error")
+                return redirect(url_for('main.offer_ride'))
 
             lieu_depart = Location.query.filter_by(name=nom_depart).first()
             if not lieu_depart:
-                lieu_depart = Location(name=nom_depart, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
+                lieu_depart = Location(
+                    name=nom_depart, 
+                    lat=float(lat_dep_str),  
+                    lon=float(lon_dep_str), 
+                    desc=nom_depart
+                )
                 db.session.add(lieu_depart)
-                db.session.flush()
             
             lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
             if not lieu_arrivee:
-                lieu_arrivee = Location(name=nom_arrivee, lat=49.8942, lon=2.2958, desc="Ajouté par utilisateur")
+                lieu_arrivee = Location(
+                    name=nom_arrivee, 
+                    lat=float(lat_arr_str), 
+                    lon=float(lon_arr_str), 
+                    desc=nom_arrivee
+                )
                 db.session.add(lieu_arrivee)
-                db.session.flush() 
+            
+            db.session.commit() 
 
             new_ride = Ride(
                 driver_id=current_user.id,
@@ -82,25 +114,21 @@ def offer_ride():
 
         except Exception as e:
             db.session.rollback()
-            flash(f"Erreur technique : {str(e)}", 'error')
-            print(f"DEBUG ERROR: {e}")
+            flash(f"Erreur : {str(e)}", 'error')
 
     suggestions = Location.query.limit(3).all()
-
-    mes_trajets = Ride.query.filter(
-        Ride.driver_id == current_user.id,        
-        Ride.date >= datetime.now()
-    ).order_by(Ride.date.asc()).all()             
-    return render_template('offer_ride.html', 
-                           lieux_bdd=suggestions,
-                           mes_trajets=mes_trajets)
+    mes_trajets = Ride.query.filter(Ride.driver_id == current_user.id).all()
+    
+    return render_template('offer_ride.html', lieux_bdd=suggestions, mes_trajets=mes_trajets)
 
 @main.route('/my-reservations')
 @login_required
 def my_reservations():
     now = datetime.now()
-    upcoming_rides = Ride.query.filter(Ride.date > now).order_by(Ride.date.asc()).all()
-    past_rides = Ride.query.filter(Ride.date < now).order_by(Ride.date.asc()).all()
+    # Séparation des trajets à venir et passés
+    upcoming_rides = Ride.query.filter(Ride.date > now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
+    past_rides = Ride.query.filter(Ride.date < now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
+
     return render_template('my_reservations.html', upcoming_rides=upcoming_rides, past_rides=past_rides)
 
 @main.route('/search-ride')
