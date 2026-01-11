@@ -178,3 +178,73 @@ function showError(input, errorMsgElement, text) {
         errorMsgElement.classList.remove('hidden');
     }
 }
+/* ==========================================
+   5. VALIDATION DATE & HEURE (Anti-Retour vers le futur)
+   ========================================== */
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('input-jour');
+    const timeInput = document.getElementById('input-heure');
+    const errorHeure = document.getElementById('error-heure');
+
+    // 1. Initialisation date min (déjà vu ensemble)
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+        
+        dateInput.addEventListener('input', function() {
+            if (this.value && this.value < today) this.value = today;
+            verifierHeure(); // On revérifie l'heure si on change la date
+        });
+    }
+
+    // 2. Fonction de vérification de l'heure
+    function verifierHeure() {
+        if (!dateInput.value || !timeInput.value) return;
+
+        const now = new Date();
+        const selectedDate = new Date(dateInput.value);
+        const today = new Date();
+
+        // On remet les heures à 0 pour comparer uniquement les jours
+        today.setHours(0,0,0,0);
+        selectedDate.setHours(0,0,0,0);
+
+        // Si la date choisie est AUJOURD'HUI
+        if (selectedDate.getTime() === today.getTime()) {
+            
+            // On récupère l'heure actuelle (ex: "14:30")
+            const currentHour = now.getHours();
+            const currentMin = now.getMinutes();
+
+            // On récupère l'heure saisie (ex: "09:00")
+            const [selectedHour, selectedMin] = timeInput.value.split(':').map(Number);
+
+            // COMPARAISON
+            // Si l'heure est inférieure OU (heure égale mais minutes inférieures)
+            if (selectedHour < currentHour || (selectedHour === currentHour && selectedMin < currentMin)) {
+                
+                // C'est dans le passé -> ERREUR
+                timeInput.value = ""; // On efface la saisie
+                
+                // Style Rouge
+                timeInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                if (errorHeure) errorHeure.classList.remove('hidden');
+
+            } else {
+                // C'est bon -> On nettoie
+                timeInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                if (errorHeure) errorHeure.classList.add('hidden');
+            }
+        } else {
+            // Si c'est demain ou plus tard, pas de restriction d'heure
+            timeInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            if (errorHeure) errorHeure.classList.add('hidden');
+        }
+    }
+
+    // 3. On écoute le changement d'heure
+    if (timeInput) {
+        timeInput.addEventListener('change', verifierHeure);
+        timeInput.addEventListener('input', verifierHeure);
+    }
+});

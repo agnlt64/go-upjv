@@ -72,6 +72,10 @@ def offer_ride():
             
             date_heure_depart = datetime.strptime(f"{date_str} {heure_str}", '%Y-%m-%d %H:%M')
 
+            if date_heure_depart < datetime.now():
+                flash("Vous ne pouvez pas proposer un trajet dans le passé !", "error")
+                return redirect(url_for('main.offer_ride'))
+
             # Gestion Lieu Départ (Plus besoin de valeur par défaut !)
             lieu_depart = Location.query.filter_by(name=nom_depart).first()
             if not lieu_depart:
