@@ -11,3 +11,6 @@ __pycache__/
 
 # Flask
 instance/
+
+# Static files
+static/uploads/
