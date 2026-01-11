@@ -44,7 +44,7 @@ def offer_ride():
             nom_depart = request.form.get('start_location')
             nom_arrivee = request.form.get('end_location')
             
-            # Récupération des Coordonnées (C'est ça le plus important)
+            # Récupération des Coordonnées 
             lat_dep_str = request.form.get('start_lat')
             lon_dep_str = request.form.get('start_lon')
             lat_arr_str = request.form.get('end_lat')
@@ -63,9 +63,7 @@ def offer_ride():
             if lat_dep_str == lat_arr_str and lon_dep_str == lon_arr_str:
                 flash("Le point de départ et d'arrivée ne peuvent pas être identiques.", "error")
                 return redirect(url_for('main.offer_ride'))
-            # ---------------------------
 
-            # Reste du code (Date, Heure, etc.)
             date_str = request.form.get('ride_date')
             heure_str = request.form.get('departure_time')
             seats = request.form.get('seats')
@@ -76,18 +74,16 @@ def offer_ride():
                 flash("Vous ne pouvez pas proposer un trajet dans le passé !", "error")
                 return redirect(url_for('main.offer_ride'))
 
-            # Gestion Lieu Départ (Plus besoin de valeur par défaut !)
             lieu_depart = Location.query.filter_by(name=nom_depart).first()
             if not lieu_depart:
                 lieu_depart = Location(
                     name=nom_depart, 
-                    lat=float(lat_dep_str),  # On est sûr que ça existe grâce au if au-dessus
+                    lat=float(lat_dep_str),  
                     lon=float(lon_dep_str), 
                     desc=nom_depart
                 )
                 db.session.add(lieu_depart)
             
-            # Gestion Lieu Arrivée
             lieu_arrivee = Location.query.filter_by(name=nom_arrivee).first()
             if not lieu_arrivee:
                 lieu_arrivee = Location(
@@ -98,9 +94,8 @@ def offer_ride():
                 )
                 db.session.add(lieu_arrivee)
             
-            db.session.commit() # On commit les lieux avant le trajet
+            db.session.commit() 
 
-            # Création du trajet
             new_ride = Ride(
                 driver_id=current_user.id,
                 start_location_id=lieu_depart.id,
@@ -119,7 +114,6 @@ def offer_ride():
             db.session.rollback()
             flash(f"Erreur : {str(e)}", 'error')
 
-    # Partie GET
     suggestions = Location.query.limit(3).all()
     mes_trajets = Ride.query.filter(Ride.driver_id == current_user.id).all()
     

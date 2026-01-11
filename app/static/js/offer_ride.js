@@ -1,6 +1,6 @@
-/* ==========================================
-   1. GESTION VISUELLE (TIROIRS)
-   ========================================== */
+
+   // GESTION VISUELLE 
+ 
 function toggleInput(label) {
     const inputArea = document.getElementById('input-area-' + label);
     const icon = document.getElementById('icon-' + label);
@@ -27,51 +27,45 @@ function toggleInput(label) {
     }
 }
 
-/* ==========================================
-   2. SÉLECTION D'UNE ADRESSE (VALIDATION)
-   ========================================== */
+
+   // SÉLECTION D'UNE ADRESSE (VALIDATION)
+  
 function selectLocation(type, name, lat, lng) {
     const inputVisible = document.getElementById('input-' + type);
     const inputLat = document.getElementById('lat-' + type);
     const inputLng = document.getElementById('lng-' + type);
     const container = document.getElementById('suggestions-' + type);
-    const errorMsg = document.getElementById('error-' + type); // Le message d'erreur
+    const errorMsg = document.getElementById('error-' + type); 
 
-    // 1. On remplit les données
     if (inputVisible) inputVisible.value = name;
     if (inputLat) inputLat.value = lat;
     if (inputLng) inputLng.value = lng;
 
-    // 2. On change le style en VERT (Validé)
     if (inputVisible) {
         inputVisible.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
         inputVisible.classList.add('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
     }
 
-    // 3. On cache le message d'erreur s'il était là
     if (errorMsg) errorMsg.classList.add('hidden');
 
-    // 4. On vide la liste
     if (container) container.innerHTML = '';
 }
 
-/* ==========================================
-   3. RECHERCHE (INVALIDATION AUTOMATIQUE)
-   ========================================== */
+
+   // RECHERCHE (INVALIDATION AUTOMATIQUE)
+
 let searchTimeout = null;
 
 async function searchCities(type, query) {
     const container = document.getElementById(`suggestions-${type}`);
     const inputVisible = document.getElementById('input-' + type);
     
-    // --- IMPORTANT : DÈS QU'ON TAPE, C'EST INVALIDE ---
-    document.getElementById('lat-' + type).value = ""; // On vide la latitude
-    document.getElementById('lng-' + type).value = ""; // On vide la longitude
+    document.getElementById('lat-' + type).value = ""; 
+    document.getElementById('lng-' + type).value = ""; 
     
-    // On enlève le vert (retour au gris normal)
     if (inputVisible) {
         inputVisible.classList.remove('border-green-500', 'focus:border-green-500', 'focus:ring-green-500');
-        inputVisible.classList.remove('border-red-500'); // On enlève le rouge aussi pour l'instant
+        inputVisible.classList.remove('border-red-500'); 
     }
     // --------------------------------------------------
 
@@ -114,9 +108,9 @@ async function searchCities(type, query) {
     }, 200);
 }
 
-/*==========================================
-   4. VALIDATION ET ENVOI DU FORMULAIRE
-   ========================================== */
+
+   // VALIDATION ET ENVOI DU FORMULAIRE
+ 
 document.querySelector('form').addEventListener('submit', function(event) {
     let isValid = true;
 
@@ -131,11 +125,10 @@ document.querySelector('form').addEventListener('submit', function(event) {
     const inputArrivee = document.getElementById('input-arrivee');
     const errorArrivee = document.getElementById('error-arrivee');
 
-    // 2. Reset des erreurs visuelles (on efface tout avant de vérifier)
     [inputDepart, inputArrivee].forEach(input => input.classList.remove('border-red-500'));
     [errorDepart, errorArrivee].forEach(err => { if(err) err.classList.add('hidden'); });
 
-    // 3. Vérification : Est-ce que les champs sont remplis ?
+    // Est-ce que les champs sont remplis ?
     if (!latDepart) {
         event.preventDefault();
         isValid = false;
@@ -150,16 +143,11 @@ document.querySelector('form').addEventListener('submit', function(event) {
         if (isValid) toggleInput('arrivee'); // On ouvre seulement si le départ était bon
     }
 
-    // 4. --- NOUVEAU : Vérification IDENTIQUE ---
     // Si les deux sont remplis, on regarde s'ils sont pareils
     if (latDepart && latArrivee && latDepart === latArrivee && lngDepart === lngArrivee) {
         event.preventDefault();
         isValid = false;
-        
-        // On affiche l'erreur sur le champ ARRIVÉE
         showError(inputArrivee, errorArrivee, " L'arrivée doit être différente du départ !");
-        
-        // On scroll vers l'arrivée pour montrer l'erreur
         toggleInput('arrivee');
     }
 
@@ -168,7 +156,7 @@ document.querySelector('form').addEventListener('submit', function(event) {
     }
 });
 
-// Petite fonction helper pour éviter de répéter le code d'affichage d'erreur
+
 function showError(input, errorMsgElement, text) {
     input.classList.remove('border-green-500', 'focus:ring-green-500'); // On enlève le vert
     input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500'); // On met le rouge
@@ -178,26 +166,26 @@ function showError(input, errorMsgElement, text) {
         errorMsgElement.classList.remove('hidden');
     }
 }
-/* ==========================================
-   5. VALIDATION DATE & HEURE (Anti-Retour vers le futur)
-   ========================================== */
+
+   // VALIDATION DATE & HEURE 
+   
 document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('input-jour');
     const timeInput = document.getElementById('input-heure');
     const errorHeure = document.getElementById('error-heure');
 
-    // 1. Initialisation date min (déjà vu ensemble)
+    
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
         
         dateInput.addEventListener('input', function() {
             if (this.value && this.value < today) this.value = today;
-            verifierHeure(); // On revérifie l'heure si on change la date
+            verifierHeure(); 
         });
     }
 
-    // 2. Fonction de vérification de l'heure
+    
     function verifierHeure() {
         if (!dateInput.value || !timeInput.value) return;
 
@@ -205,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedDate = new Date(dateInput.value);
         const today = new Date();
 
-        // On remet les heures à 0 pour comparer uniquement les jours
+        
         today.setHours(0,0,0,0);
         selectedDate.setHours(0,0,0,0);
 
@@ -220,18 +208,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const [selectedHour, selectedMin] = timeInput.value.split(':').map(Number);
 
             // COMPARAISON
-            // Si l'heure est inférieure OU (heure égale mais minutes inférieures)
             if (selectedHour < currentHour || (selectedHour === currentHour && selectedMin < currentMin)) {
                 
-                // C'est dans le passé -> ERREUR
-                timeInput.value = ""; // On efface la saisie
-                
-                // Style Rouge
+                timeInput.value = "";
                 timeInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
                 if (errorHeure) errorHeure.classList.remove('hidden');
 
             } else {
-                // C'est bon -> On nettoie
                 timeInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
                 if (errorHeure) errorHeure.classList.add('hidden');
             }
@@ -242,7 +225,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 3. On écoute le changement d'heure
     if (timeInput) {
         timeInput.addEventListener('change', verifierHeure);
         timeInput.addEventListener('input', verifierHeure);
