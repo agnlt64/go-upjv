@@ -1,9 +1,11 @@
-import datetime
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, request, flash, redirect
+
+from flask import Blueprint, render_template, redirect, url_for, request, flash, redirect, jsonify
 from flask_login import logout_user, current_user, login_required
-from app.models.ride import Ride 
+
+from app.models.ride import Ride
 from app.models.location import Location
+from app.models.ride import Ride
 from app import db
 
 
@@ -129,28 +131,16 @@ def my_reservations():
 
     return render_template('my_reservations.html', upcoming_rides=upcoming_rides, past_rides=past_rides)
 
-# --- AJOUT DE LA ROUTE MANQUANTE ---
 @main.route('/search-ride')
 @login_required
 def search_ride():
     return render_template('search_ride.html')
 
-
-
-
-from app.models import Ride, User 
-
-
 @main.route('/rides/<int:ride_id>/passengers')
 @login_required
 def get_ride_passengers(ride_id):
-    # 1. On récupère le trajet
     ride = Ride.query.get_or_404(ride_id)
-    
-    # 2. On récupère les passagers
     users = ride.passengers
-    
-    # 3. On prépare le JSON
     liste_passagers = []
     
     for user in users:
