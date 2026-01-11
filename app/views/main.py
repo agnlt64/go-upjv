@@ -58,6 +58,11 @@ def offer_ride():
             if not lat_arr_str or not lon_arr_str:
                 flash("Veuillez ajouter une adresse d'arrivée valide (cliquez sur une suggestion).", "error")
                 return redirect(url_for('main.offer_ride'))
+            
+
+            if lat_dep_str == lat_arr_str and lon_dep_str == lon_arr_str:
+                flash("Le point de départ et d'arrivée ne peuvent pas être identiques.", "error")
+                return redirect(url_for('main.offer_ride'))
             # ---------------------------
 
             # Reste du code (Date, Heure, etc.)
@@ -74,7 +79,7 @@ def offer_ride():
                     name=nom_depart, 
                     lat=float(lat_dep_str),  # On est sûr que ça existe grâce au if au-dessus
                     lon=float(lon_dep_str), 
-                    desc="Ajouté par utilisateur"
+                    desc=nom_depart
                 )
                 db.session.add(lieu_depart)
             
@@ -85,7 +90,7 @@ def offer_ride():
                     name=nom_arrivee, 
                     lat=float(lat_arr_str), 
                     lon=float(lon_arr_str), 
-                    desc="Ajouté par utilisateur"
+                    desc=nom_arrivee
                 )
                 db.session.add(lieu_arrivee)
             

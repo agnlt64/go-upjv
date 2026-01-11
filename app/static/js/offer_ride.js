@@ -114,48 +114,67 @@ async function searchCities(type, query) {
     }, 200);
 }
 
-/* ==========================================
-   4. VALIDATION AU CLIC SUR "METTRE EN LIGNE"
+/*==========================================
+   4. VALIDATION ET ENVOI DU FORMULAIRE
    ========================================== */
 document.querySelector('form').addEventListener('submit', function(event) {
     let isValid = true;
 
-    // Vérification DÉPART
+    // 1. Récupération des valeurs
     const latDepart = document.getElementById('lat-depart').value;
+    const lngDepart = document.getElementById('lng-depart').value;
     const inputDepart = document.getElementById('input-depart');
     const errorDepart = document.getElementById('error-depart');
 
-    if (!latDepart) {
-        // C'est vide ou pas sélectionné -> ERREUR
-        event.preventDefault(); // On bloque l'envoi
-        isValid = false;
-        
-        // Style Rouge
-        inputDepart.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        // Afficher message
-        if (errorDepart) errorDepart.classList.remove('hidden');
-        
-        // On ouvre le tiroir pour montrer l'erreur
-        toggleInput('depart'); 
-    }
-
-    // Vérification ARRIVÉE
     const latArrivee = document.getElementById('lat-arrivee').value;
+    const lngArrivee = document.getElementById('lng-arrivee').value;
     const inputArrivee = document.getElementById('input-arrivee');
     const errorArrivee = document.getElementById('error-arrivee');
+
+    // 2. Reset des erreurs visuelles (on efface tout avant de vérifier)
+    [inputDepart, inputArrivee].forEach(input => input.classList.remove('border-red-500'));
+    [errorDepart, errorArrivee].forEach(err => { if(err) err.classList.add('hidden'); });
+
+    // 3. Vérification : Est-ce que les champs sont remplis ?
+    if (!latDepart) {
+        event.preventDefault();
+        isValid = false;
+        showError(inputDepart, errorDepart, " Veuillez sélectionner une adresse valide.");
+        toggleInput('depart');
+    }
 
     if (!latArrivee) {
         event.preventDefault();
         isValid = false;
+        showError(inputArrivee, errorArrivee, " Veuillez sélectionner une adresse valide.");
+        if (isValid) toggleInput('arrivee'); // On ouvre seulement si le départ était bon
+    }
+
+    // 4. --- NOUVEAU : Vérification IDENTIQUE ---
+    // Si les deux sont remplis, on regarde s'ils sont pareils
+    if (latDepart && latArrivee && latDepart === latArrivee && lngDepart === lngArrivee) {
+        event.preventDefault();
+        isValid = false;
         
-        inputArrivee.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        if (errorArrivee) errorArrivee.classList.remove('hidden');
+        // On affiche l'erreur sur le champ ARRIVÉE
+        showError(inputArrivee, errorArrivee, " L'arrivée doit être différente du départ !");
         
+        // On scroll vers l'arrivée pour montrer l'erreur
         toggleInput('arrivee');
     }
 
     if (!isValid) {
-        // Scroll vers le haut pour voir l'erreur
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
+
+// Petite fonction helper pour éviter de répéter le code d'affichage d'erreur
+function showError(input, errorMsgElement, text) {
+    input.classList.remove('border-green-500', 'focus:ring-green-500'); // On enlève le vert
+    input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500'); // On met le rouge
+    
+    if (errorMsgElement) {
+        errorMsgElement.innerText = text; // On change le texte dynamiquement
+        errorMsgElement.classList.remove('hidden');
+    }
+}
