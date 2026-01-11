@@ -130,8 +130,9 @@ def offer_ride():
 def my_reservations():
     now = datetime.now()
     # Séparation des trajets à venir et passés
-    upcoming_rides = Ride.query.filter(Ride.date > now).order_by(Ride.date.asc()).all()
-    past_rides = Ride.query.filter(Ride.date < now).order_by(Ride.date.asc()).all()
+    upcoming_rides = Ride.query.filter(Ride.date > now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
+    past_rides = Ride.query.filter(Ride.date < now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
+
     return render_template('my_reservations.html', upcoming_rides=upcoming_rides, past_rides=past_rides)
 
 # --- AJOUT DE LA ROUTE MANQUANTE ---
