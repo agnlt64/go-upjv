@@ -8,6 +8,7 @@ class Vehicle(db.Model):
     color = db.Column(db.String(50))
     licence_plate = db.Column(db.String(20), unique=True, nullable=False)
     max_seats = db.Column(db.Integer, nullable=False)
+    image_path = db.Column(db.String(255), nullable=True)
     
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
     

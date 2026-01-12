@@ -28,7 +28,7 @@ def seed_users(n=10):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
             upjv_id = f"{random.choice(string.ascii_lowercase)}{random.randint(20000000, 29999999)}"
-            email = f"{first_name.lower()}.{last_name.lower()}{i}@etud.u-picardie.fr"
+            email = f"{first_name.lower()}.{last_name.lower()}@etud.u-picardie.fr"
             phone_number = f"06{random.randint(10000000, 99999999)}"
             password = generate_password_hash("password123*")
             
@@ -59,17 +59,67 @@ def seed_locations(n=10):
         
         # Campus and popular locations in Amiens
         locations_data = [
-            {"name": "Campus UPJV - Citadelle", "lat": 49.8942, "lon": 2.2958, "desc": "Campus principal de l'UPJV"},
-            {"name": "Gare d'Amiens", "lat": 49.8906, "lon": 2.3036, "desc": "Gare SNCF d'Amiens"},
-            {"name": "Centre-ville Amiens", "lat": 49.8941, "lon": 2.2958, "desc": "Centre-ville d'Amiens"},
-            {"name": "Campus UPJV - Teinturerie", "lat": 49.8892, "lon": 2.3042, "desc": "Campus UFR Sciences"},
-            {"name": "IUT Amiens", "lat": 49.8990, "lon": 2.3180, "desc": "IUT d'Amiens"},
-            {"name": "Pôle Jules Verne", "lat": 49.8547, "lon": 2.2797, "desc": "Zone commerciale"},
-            {"name": "Hôpital Nord", "lat": 49.9102, "lon": 2.3214, "desc": "CHU Amiens-Picardie"},
-            {"name": "Parc Saint-Pierre", "lat": 49.8889, "lon": 2.2906, "desc": "Parc urbain"},
-            {"name": "Cathédrale d'Amiens", "lat": 49.8946, "lon": 2.3021, "desc": "Monument historique"},
-            {"name": "Université - Pôle Santé", "lat": 49.8930, "lon": 2.3130, "desc": "Pôle santé UPJV"}
-        ]
+    {
+        "name": "Campus UPJV - Citadelle", 
+        "lat": 49.9018445, 
+        "lon": 2.2966589, 
+        "desc": "Campus principal de l'UPJV"
+    },
+    {
+        "name": "Gare d'Amiens", 
+        "lat": 49.8904721, 
+        "lon": 2.3036325, 
+        "desc": "Gare SNCF d'Amiens (Place Alphonse Fiquet)"
+    },
+    {
+        "name": "Centre-ville Amiens", 
+        "lat": 49.8934062, 
+        "lon": 2.2994828, 
+        "desc": "Place Gambetta / Rue des 3 Cailloux"
+    },
+    {
+        "name": "Campus UPJV - Teinturerie", 
+        "lat": 49.8887643, 
+        "lon": 2.3034952, 
+        "desc": "Campus UFR Arts et Sciences"
+    },
+    {
+        "name": "IUT Amiens", 
+        "lat": 49.8730987, 
+        "lon": 2.2741954, 
+        "desc": "IUT d'Amiens (Avenue des Facultés)"
+    },
+    {
+        "name": "Pôle Jules Verne", 
+        "lat": 49.8647221, 
+        "lon": 2.3698115, 
+        "desc": "Zone commerciale Grand A (Glisy)"
+    },
+    {
+        "name": "Hôpital Nord", 
+        "lat": 49.9102451, 
+        "lon": 2.3197853, 
+        "desc": "Ancien site CHU Amiens-Picardie"
+    },
+    {
+        "name": "Parc Saint-Pierre", 
+        "lat": 49.8980312, 
+        "lon": 2.3113345, 
+        "desc": "Parc urbain et étang"
+    },
+    {
+        "name": "Cathédrale d'Amiens", 
+        "lat": 49.8947678, 
+        "lon": 2.3023021, 
+        "desc": "Notre-Dame d'Amiens"
+    },
+    {
+        "name": "Université - Pôle Santé", 
+        "lat": 49.8755013, 
+        "lon": 2.2778005, 
+        "desc": "CHU Amiens-Sud / Campus Santé"
+    }
+]
         
         locations = []
         for loc_data in locations_data[:n]:
