@@ -28,7 +28,7 @@ def seed_users(n=10):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
             upjv_id = f"{random.choice(string.ascii_lowercase)}{random.randint(20000000, 29999999)}"
-            email = f"{first_name.lower()}.{last_name.lower()}{i}@etud.u-picardie.fr"
+            email = f"{first_name.lower()}.{last_name.lower()}@etud.u-picardie.fr"
             phone_number = f"06{random.randint(10000000, 99999999)}"
             password = generate_password_hash("password123*")
             
