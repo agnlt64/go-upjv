@@ -13,4 +13,4 @@ __pycache__/
 instance/
 
 # Static files
-static/uploads/
+app/static/uploads/*
