@@ -261,7 +261,7 @@ def seed_reviews(rides, ratio=0.5):
         
         reviews = []
         now = datetime.utcnow()
-        
+
         # Only review rides that are in the past
         past_rides = [ride for ride in rides if ride.date < now]
         
