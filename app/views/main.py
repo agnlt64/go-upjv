@@ -53,9 +53,22 @@ def search_ride():
 def my_reservations():
     now = datetime.now()
     upcoming_rides = Ride.query.filter(Ride.date > now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
-    past_rides = Ride.query.filter(Ride.date < now, Ride.passengers.contains(current_user)).order_by(Ride.date.asc())
+    past_rides = Ride.query.filter(Ride.date < now, Ride.passengers.contains(current_user)).order_by(Ride.date.desc())
+    
+    from app.models import Review
+    reviewed_rides = {}
+    for ride in past_rides:
+        existing = Review.query.filter_by(
+            ride_id=ride.id,
+            author_id=current_user.id,
+            target_id=ride.driver_id
+        ).first()
+        reviewed_rides[ride.id] = existing is not None
 
-    return render_template('my_reservations.html', upcoming_rides=upcoming_rides, past_rides=past_rides)
+    return render_template('my_reservations.html', 
+                           upcoming_rides=upcoming_rides, 
+                           past_rides=past_rides,
+                           reviewed_rides=reviewed_rides)
 
 
 @main.route('/offer-ride', methods=['GET', 'POST'])
