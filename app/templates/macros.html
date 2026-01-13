@@ -184,34 +184,6 @@
 </div>
 {% endmacro %}
 
-{% macro user_info_card(user) %}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="p-4 bg-gray-50 rounded-lg">
-        <p class="text-sm text-gray-600 mb-1">Prénom</p>
-        <p class="font-medium text-gray-900">{{ user.first_name }}</p>
-    </div>
-    <div class="p-4 bg-gray-50 rounded-lg">
-        <p class="text-sm text-gray-600 mb-1">Nom</p>
-        <p class="font-medium text-gray-900">{{ user.last_name }}</p>
-    </div>
-    <div class="p-4 bg-gray-50 rounded-lg">
-        <p class="text-sm text-gray-600 mb-1">ID UPJV</p>
-        <p class="font-medium text-gray-900">{{ user.upjv_id }}</p>
-    </div>
-    <div class="p-4 bg-gray-50 rounded-lg">
-        <p class="text-sm text-gray-600 mb-1">Email</p>
-        <p class="font-medium text-gray-900">{{ user.email }}</p>
-    </div>
-    {% if user.phone_number %}
-    <div class="p-4 bg-gray-50 rounded-lg md:col-span-2">
-        <p class="text-sm text-gray-600 mb-1">Téléphone</p>
-        <p class="font-medium text-gray-900">{{ user.phone_number }}</p>
-    </div>
-    {% endif %}
-</div>
-{{ account_metadata(user) }}
-{% endmacro %}
-
 {% macro vehicle_card(vehicle) %}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="p-4 bg-gray-50 rounded-lg">

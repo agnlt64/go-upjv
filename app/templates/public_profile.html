@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from "macros.html" import user_info_card, vehicle_card, star_rating, review_card %}
+{% from "macros.html" import account_metadata, vehicle_card, star_rating, review_card %}
 
 {% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} - GoUPJV{% endblock %}
 
@@ -21,14 +21,29 @@
                         </span>
                         {% endif %}
                     </h1>
-                    <p class="text-gray-600 mt-1">Profil public</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Informations</h2>
-            {{ user_info_card(profile_user) }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">ID UPJV</p>
+                    <p class="font-medium text-gray-900">{{ user.upjv_id }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Email</p>
+                    <p class="font-medium text-gray-900">{{ user.email }}</p>
+                </div>
+                {% if user.phone_number %}
+                <div class="p-4 bg-gray-50 rounded-lg md:col-span-2">
+                    <p class="text-sm text-gray-600 mb-1">Téléphone</p>
+                    <p class="font-medium text-gray-900">{{ user.phone_number }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {{ account_metadata(user) }}
         </div>
 
         {% if profile_user.vehicle %}

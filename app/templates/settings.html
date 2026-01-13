@@ -7,8 +7,9 @@
 <main class="flex-grow w-full bg-gray-50 pt-[6rem] pb-8">
     <div class="container mx-auto px-4 max-w-4xl">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Mon Profil</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Mon profil</h1>
             <p class="text-gray-600 mt-2">Gérez vos informations personnelles et votre véhicule</p>
+            <a href="{{ url_for('main.public_profile', upjv_id=user.upjv_id) }}" class="text-blue-600 hover:underline">Voir mon profil public</a>
         </div>
 
         {{ flash_messages() }}
@@ -85,7 +86,7 @@
 
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">Mon Véhicule</h2>
+                <h2 class="text-xl font-semibold text-gray-900">Mon véhicule</h2>
                 {% if user.vehicle %}
                 <button id="editVehicleBtn" type="button"
                     class="p-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all">
