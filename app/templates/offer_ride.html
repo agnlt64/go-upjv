@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'macros.html' import offer_ride %}
+{% from 'macros.html' import offer_ride, flash_messages %}
 
 {% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -42,6 +42,7 @@
 {% endif %}
 
 <div class="container mx-auto px-4 py-32 max-w-6xl transition-all duration-300 {% if mes_trajets %}pl-80 lg:pl-[26rem]{% endif %}">    
+    {{ flash_messages() }}
     <h1 class="text-3xl font-extrabold mb-10 text-black">
         {{ current_user.first_name }}, proposez un trajet
     </h1>
