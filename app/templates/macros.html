@@ -101,7 +101,7 @@
             {% for passenger in item.passengers %}
             <div class="flex items-center gap-3 p-2 rounded-md bg-white border border-slate-100 shadow-sm">
                 <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
-                {{ passenger.first_name[0].upper() }}
+                    {{ passenger.first_name[0].upper() }}
                 </div>
                 <div class="flex flex-col overflow-hidden">
                     <a href="{{ url_for('main.public_profile', upjv_id=passenger.upjv_id) }}" class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{ passenger.last_name }}</a>
@@ -227,13 +227,17 @@
         <p class="font-medium text-gray-900">{{ vehicle.max_seats }}</p>
     </div>
 </div>
-{% if vehicle.image_path %}
 <div class="mt-4">
     <p class="text-sm text-gray-600 mb-2">Photo du véhicule</p>
+    {% if vehicle.image_path %}
     <img src="{{ url_for('static', filename='uploads/vehicles/' + vehicle.image_path) }}" alt="{{ vehicle.model }}"
         class="w-full h-48 object-cover rounded-lg shadow-sm">
+    {% else %}
+    <div class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+        <p class="text-gray-400 text-sm">Aucune photo</p>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endmacro %}
 
 {% macro review_card(review) %}

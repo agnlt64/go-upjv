@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from "macros.html" import flash_messages, edit_icon, trash_icon %}
+{% from "macros.html" import flash_messages, edit_icon, trash_icon, vehicle_card %}
 
 {% block title %}Profil - GoUPJV{% endblock %}
 
@@ -125,36 +125,7 @@
 
             {% if user.vehicle %}
             <div id="vehicleDisplay">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Modèle</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.model }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Couleur</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.color if user.vehicle.color else '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Immatriculation</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.licence_plate }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Places disponibles</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.max_seats }}</p>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <p class="text-sm text-gray-600 mb-2">Photo du véhicule</p>
-                    {% if user.vehicle.image_path %}
-                    <img src="{{ url_for('static', filename='uploads/vehicles/' + user.vehicle.image_path) }}"
-                        alt="{{ user.vehicle.model }}" class="w-full h-48 object-cover rounded-lg shadow-sm">
-                    {% else %}
-                    <div class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <p class="text-gray-400 text-sm">Aucune photo</p>
-                    </div>
-                    {% endif %}
-                </div>
+                {{ vehicle_card(user.vehicle) }}
 
                 <form action="{{ url_for('api.delete_vehicle') }}" method="POST"
                     class="mt-6 pt-6 border-t border-gray-200 flex justify-end">
