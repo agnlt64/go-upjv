@@ -208,13 +208,20 @@ def search_rides():
 @login_required
 def book_ride(ride_id):
     ride = Ride.query.get_or_404(ride_id)
-    if ride.seats <= 0: return jsonify({'success': False, 'message': 'Ce trajet est complet !'})
-    if ride.driver_id == current_user.id: return jsonify({'success': False, 'message': 'Impossible de réserver son propre trajet.'})
-    if current_user in ride.passengers: return jsonify({'success': False, 'message': 'Vous avez déjà réservé ce trajet.'})
+    if ride.seats <= 0:
+        flash('Ce trajet est complet !', 'error')
+        return redirect(url_for('main.search_ride'))
+    if ride.driver_id == current_user.id:
+        flash('Impossible de réserver son propre trajet.', 'error')
+        return redirect(url_for('main.search_ride'))
+    if current_user in ride.passengers:
+        flash('Vous avez déjà réservé ce trajet.', 'error')
+        return redirect(url_for('main.search_ride'))
     ride.passengers.append(current_user)
     ride.seats -= 1
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
+    flash('Réservation enregistrée avec succès !', 'success')
+    return redirect(url_for('main.search_ride'))
 
 @api.route('/rides/<int:ride_id>/passengers')
 @login_required

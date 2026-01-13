@@ -46,7 +46,9 @@ def settings():
 @main.route('/search-ride')
 @login_required
 def search_ride():
-    return render_template('search_ride.html')
+    now = datetime.now()
+    rides = Ride.query.filter(Ride.date >= now, Ride.seats > 0).order_by(Ride.date.asc()).all()
+    return render_template('search_ride.html', rides=rides)
 
 @main.route('/my-reservations')
 @login_required
