@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import uuid
 import os
 
-from app.models import User, Ride
+from app.models import User, Ride, Review
 from app.models.location import Location
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
@@ -233,3 +233,62 @@ def get_ride_passengers(ride_id):
         })
     
     return jsonify({'passengers': liste_passagers})
+
+@api.route('/submit-review', methods=['POST'])
+@login_required
+def submit_review():
+    data = request.get_json()
+    ride_id = data.get('ride_id')
+    target_id = data.get('target_id')
+    rating = data.get('rating')
+    content = data.get('content', '')
+    
+    if not all([ride_id, target_id, rating]):
+        return error('Données manquantes', 400)
+    
+    try:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            return error('La note doit être entre 1 et 5', 400)
+    except (ValueError, TypeError):
+        return error('Note invalide', 400)
+    
+    ride = Ride.query.get_or_404(ride_id)
+    target = User.query.get_or_404(target_id)
+    
+    if ride.date > datetime.now():
+        return error('Ce trajet n\'est pas encore terminé', 400)
+    
+    is_passenger = current_user in ride.passengers
+    is_driver = ride.driver_id == current_user.id
+    
+    if not is_passenger and not is_driver:
+        return error('Vous n\'avez pas participé à ce trajet', 403)
+    
+    if is_passenger and target_id != ride.driver_id:
+        return error('En tant que passager, vous ne pouvez noter que le conducteur', 400)
+    
+    if is_driver and target not in ride.passengers:
+        return error('Vous ne pouvez noter que les passagers de ce trajet', 400)
+    
+    existing = Review.query.filter_by(
+        ride_id=ride_id,
+        author_id=current_user.id,
+        target_id=target_id
+    ).first()
+    
+    if existing:
+        return error('Vous avez déjà noté cette personne pour ce trajet', 400)
+    
+    review = Review(
+        ride_id=ride_id,
+        author_id=current_user.id,
+        target_id=target_id,
+        rating=rating,
+        content=content
+    )
+    
+    db.session.add(review)
+    db.session.commit()
+    
+    return success('Avis enregistré avec succès')
