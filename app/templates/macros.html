@@ -58,7 +58,11 @@
         <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2 mt-4 md:mt-0">
             <div>
                 <div class="text-sm text-slate-500">Chauffeur</div>
-                <div class="font-medium text-slate-900">{{ item.driver.to_str() }}</div>
+                <div class="font-medium text-slate-900">
+                    <a href="{{ url_for('main.public_profile', upjv_id=item.driver.upjv_id) }}" class="hover:underline">
+                        {{ item.driver.to_str() }}
+                    </a>
+                </div>
             </div>
 
             <div>

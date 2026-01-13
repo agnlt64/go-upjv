@@ -15,12 +15,12 @@
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">
                         {{ profile_user.first_name }} {{ profile_user.last_name }}
-                        {% if avg_rating %}
-                        <span class="ml-2 inline-flex items-baseline">
-                            {{ star_rating(avg_rating, 'text-xl') }}
-                        </span>
-                        {% endif %}
                     </h1>
+                    {% if avg_rating %}
+                    <span class="ml-2 inline-flex items-baseline">
+                        {{ star_rating(avg_rating, 'text-xl') }}
+                    </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -30,20 +30,22 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="p-4 bg-gray-50 rounded-lg">
                     <p class="text-sm text-gray-600 mb-1">ID UPJV</p>
-                    <p class="font-medium text-gray-900">{{ user.upjv_id }}</p>
+                    <p class="font-medium text-gray-900">{{ profile_user.upjv_id }}</p>
                 </div>
                 <div class="p-4 bg-gray-50 rounded-lg">
                     <p class="text-sm text-gray-600 mb-1">Email</p>
-                    <p class="font-medium text-gray-900">{{ user.email }}</p>
+                    <p class="font-medium text-gray-900">{{ profile_user.email }}</p>
                 </div>
-                {% if user.phone_number %}
                 <div class="p-4 bg-gray-50 rounded-lg md:col-span-2">
-                    <p class="text-sm text-gray-600 mb-1">Téléphone</p>
-                    <p class="font-medium text-gray-900">{{ user.phone_number }}</p>
+                    <p class="text-sm text-gray-600 mb-1">Bio</p>
+                    {% if profile_user.bio %}
+                    <p class="font-medium text-gray-900">{{ profile_user.bio }}</p>
+                    {% else %}
+                    <p class="text-xs italic text-gray-900">Aucune bio</p>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
-            {{ account_metadata(user) }}
+            {{ account_metadata(profile_user) }}
         </div>
 
         {% if profile_user.vehicle %}

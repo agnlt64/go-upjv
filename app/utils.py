@@ -82,12 +82,14 @@ def user_from_request():
     upjv_id = request.form.get('upjv_id')
     email = request.form.get('email')
     password = request.form.get('password')
+    bio = request.form.get('bio')
     
     user = User(last_name=last_name,
                 first_name=first_name,
                 phone_number=tel,
                 upjv_id=upjv_id,
-                email=email)
+                email=email,
+                bio=bio)
     
     if tel and not check_phone(tel):
         flash('Invalid phone number', 'error')

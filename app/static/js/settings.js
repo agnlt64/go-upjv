@@ -1,13 +1,14 @@
 
-// Gestion de l'édition du profil
 const editProfileBtn = document.getElementById('editProfileBtn');
 const cancelProfileBtn = document.getElementById('cancelProfileBtn');
 const profileForm = document.getElementById('profileForm');
 const profileActions = document.getElementById('profileActions');
 const profileInputs = profileForm.querySelectorAll('input:not([type="hidden"])');
+const bioInput = profileForm.querySelector('textarea[name="bio"]');
 
 editProfileBtn.addEventListener('click', () => {
     profileInputs.forEach(input => input.disabled = false);
+    bioInput.disabled = false;
     profileActions.classList.remove('hidden');
     editProfileBtn.classList.add('hidden');
 });
@@ -15,12 +16,12 @@ editProfileBtn.addEventListener('click', () => {
 cancelProfileBtn.addEventListener('click', () => {
     profileForm.reset();
     profileInputs.forEach(input => input.disabled = true);
+    bioInput.disabled = true;
     profileActions.classList.add('hidden');
     editProfileBtn.classList.remove('hidden');
 });
 
 
-// Gestion de l'édition du véhicule
 const editVehicleBtn = document.getElementById('editVehicleBtn');
 const cancelVehicleBtn = document.getElementById('cancelVehicleBtn');
 const vehicleDisplay = document.getElementById('vehicleDisplay');
