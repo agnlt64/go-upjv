@@ -42,6 +42,4 @@ Le serveur sera lancé sur [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ## Documentation
 
-- [API](./docs/api.md)
 - [Contribuer](./docs/contribuer.md)
-- [Déployer](./docs/deployer.md)
