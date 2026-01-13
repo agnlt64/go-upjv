@@ -49,7 +49,7 @@
                             <div class="text-sm text-slate-500">Chauffeur</div>
                             <div class="font-medium text-slate-900">
                                 <a href="{{ url_for('main.public_profile', upjv_id=ride.driver.upjv_id) }}"
-                                    class="hover:text-indigo-600 hover:underline" onclick="event.stopPropagation()">
+                                    class="hover:underline" onclick="event.stopPropagation()">
                                     {{ ride.driver.to_str() }}
                                 </a>
                             </div>
