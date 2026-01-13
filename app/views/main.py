@@ -38,10 +38,10 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
-@main.route('/user-profile')
+@main.route('/settings')
 @login_required
-def user_profile():
-    return render_template('user_profile.html')
+def settings():
+    return render_template('settings.html')
 
 @main.route('/search-ride')
 @login_required
