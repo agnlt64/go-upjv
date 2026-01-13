@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from "macros.html" import flash_messages, edit_icon, trash_icon, vehicle_card %}
+{% from "macros.html" import flash_messages, edit_icon, trash_icon, vehicle_card, account_metadata %}
 
 {% block title %}Profil - GoUPJV{% endblock %}
 
@@ -68,36 +68,7 @@
                     </div>
                 </div>
 
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Informations du compte</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm text-gray-600">Membre depuis</p>
-                            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Statut du compte</p>
-                            <p class="text-sm font-medium">
-                                {% if user.is_admin %}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">
-                                    Admin
-                                </span>
-                                {% elif user.is_active %}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Actif
-                                </span>
-                                {% else %}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Inactif
-                                </span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                {{ account_metadata(user) }}
 
                 <div id="profileActions" class="hidden mt-6 flex gap-3">
                     <button type="submit"

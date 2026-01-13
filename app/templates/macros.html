@@ -158,6 +158,32 @@
 </div>
 {% endmacro %}
 
+{% macro account_metadata(user) %}
+<div class="mt-6 pt-6 border-t border-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <p class="text-sm text-gray-600">Membre depuis</p>
+            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Statut du compte</p>
+            <p class="text-sm font-medium">
+                {% if user.is_admin %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">Admin</span>
+                {% elif user.is_active %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Actif</span>
+                {% else %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactif</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
 {% macro user_info_card(user) %}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="p-4 bg-gray-50 rounded-lg">
@@ -183,29 +209,7 @@
     </div>
     {% endif %}
 </div>
-<div class="mt-6 pt-6 border-t border-gray-200">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <p class="text-sm text-gray-600">Membre depuis</p>
-            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
-        </div>
-        <div>
-            <p class="text-sm text-gray-600">Statut du compte</p>
-            <p class="text-sm font-medium">
-                {% if user.is_admin %}
-                <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">Admin</span>
-                {% elif user.is_active %}
-                <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Actif</span>
-                {% else %}
-                <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactif</span>
-                {% endif %}
-            </p>
-        </div>
-    </div>
-</div>
+{{ account_metadata(user) }}
 {% endmacro %}
 
 {% macro vehicle_card(vehicle) %}
