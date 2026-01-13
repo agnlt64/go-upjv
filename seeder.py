@@ -24,11 +24,14 @@ def seed_users(n=10):
             return
 
         users = []
-        for i in range(n):
+        emails = []
+        while len(users) < n:
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
             upjv_id = f"{random.choice(string.ascii_lowercase)}{random.randint(20000000, 29999999)}"
             email = f"{first_name.lower()}.{last_name.lower()}@etud.u-picardie.fr"
+            if email in emails:
+                continue
             phone_number = f"06{random.randint(10000000, 99999999)}"
             password = generate_password_hash("password123*")
             
@@ -40,7 +43,7 @@ def seed_users(n=10):
                 phone_number=phone_number,
                 password=password
             )
-            
+            emails.append(email)
             db.session.add(user)
             users.append(user)
         

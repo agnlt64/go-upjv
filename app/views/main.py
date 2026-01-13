@@ -38,15 +38,17 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
-@main.route('/user-profile')
+@main.route('/settings')
 @login_required
-def user_profile():
-    return render_template('user_profile.html')
+def settings():
+    return render_template('settings.html')
 
 @main.route('/search-ride')
 @login_required
 def search_ride():
-    return render_template('search_ride.html')
+    now = datetime.now()
+    rides = Ride.query.filter(Ride.date >= now, Ride.seats > 0).order_by(Ride.date.asc()).all()
+    return render_template('search_ride.html', rides=rides)
 
 @main.route('/my-reservations')
 @login_required
@@ -113,3 +115,24 @@ def offer_ride():
     mes_trajets = get_user_rides(current_user.id)
     
     return render_template('offer_ride.html', lieux_bdd=suggestions, mes_trajets=mes_trajets)
+
+@main.route('/user/<upjv_id>')
+def public_profile(upjv_id):
+    from app.models import User, Review
+    
+    user = User.query.filter_by(upjv_id=upjv_id).first_or_404()
+    
+    reviews = Review.query.filter_by(target_id=user.id).order_by(Review.id.desc()).all()
+    
+    avg_rating = None
+    if reviews:
+        avg_rating = sum(r.rating for r in reviews) / len(reviews)
+    
+    is_driver = len(user.rides_driven) > 0
+    
+    return render_template('public_profile.html', 
+                           profile_user=user, 
+                           reviews=reviews,
+                           avg_rating=avg_rating,
+                           is_driver=is_driver)
+

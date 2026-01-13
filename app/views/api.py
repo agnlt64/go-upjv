@@ -57,7 +57,7 @@ def login():
             return render_template('auth/login.html', user=actual_user)
         if check_password_hash(actual_user.password, password):
             login_user(actual_user)
-            return redirect(url_for('main.user_profile'))
+            return redirect(url_for('main.settings'))
         else:
             flash('Invalid password', 'error')
             return render_template('auth/login.html', user=user)
@@ -81,7 +81,7 @@ def sign_up():
     db.session.add(user)
     db.session.commit()
     login_user(user)
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/update-profile', methods=['POST'])
 @login_required
@@ -91,7 +91,7 @@ def update_profile():
         update(current_user, user)
         db.session.commit()
         flash('Profile updated successfully', 'success')
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/update-vehicle', methods=['POST'])
 @login_required
@@ -113,7 +113,7 @@ def update_vehicle():
         
         db.session.commit()
         flash('Vehicle updated successfully', 'success')
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/add-vehicle', methods=['PUT', 'POST'])
 @login_required
@@ -131,7 +131,7 @@ def add_vehicle():
         db.session.commit()
         flash('Vehicle added successfully', 'success')
     else: flash('Invalid vehicle data', 'error')
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/delete-vehicle', methods=['DELETE', 'POST'])
 @login_required
@@ -142,7 +142,7 @@ def delete_vehicle():
         db.session.commit()
         flash('Vehicle deleted successfully', 'success')
     else: flash('brochacho reached unreachable code 🥀', 'error')
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/change-password', methods=['PATCH', 'POST'])
 @login_required
@@ -152,17 +152,17 @@ def change_password():
     confirm_password = request.form.get('confirm_new_password')
     if not check_password_hash(current_user.password, current_password):
         flash('Current password is incorrect', 'error')
-        return redirect(url_for('main.user_profile'))
+        return redirect(url_for('main.settings'))
     if new_password != confirm_password:
         flash('New passwords do not match', 'error')
-        return redirect(url_for('main.user_profile'))
+        return redirect(url_for('main.settings'))
     if not check_password(new_password):
         flash('New password does not meet requirements', 'error')
-        return redirect(url_for('main.user_profile'))
+        return redirect(url_for('main.settings'))
     current_user.password = generate_password_hash(new_password)
     db.session.commit()
     flash('Password changed successfully', 'success')
-    return redirect(url_for('main.user_profile'))
+    return redirect(url_for('main.settings'))
 
 @api.route('/search-rides', methods=['GET'])
 @login_required
@@ -208,13 +208,20 @@ def search_rides():
 @login_required
 def book_ride(ride_id):
     ride = Ride.query.get_or_404(ride_id)
-    if ride.seats <= 0: return jsonify({'success': False, 'message': 'Ce trajet est complet !'})
-    if ride.driver_id == current_user.id: return jsonify({'success': False, 'message': 'Impossible de réserver son propre trajet.'})
-    if current_user in ride.passengers: return jsonify({'success': False, 'message': 'Vous avez déjà réservé ce trajet.'})
+    if ride.seats <= 0:
+        flash('Ce trajet est complet !', 'error')
+        return redirect(url_for('main.search_ride'))
+    if ride.driver_id == current_user.id:
+        flash('Impossible de réserver son propre trajet.', 'error')
+        return redirect(url_for('main.search_ride'))
+    if current_user in ride.passengers:
+        flash('Vous avez déjà réservé ce trajet.', 'error')
+        return redirect(url_for('main.search_ride'))
     ride.passengers.append(current_user)
     ride.seats -= 1
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Réservation enregistrée avec succès !'})
+    flash('Réservation enregistrée avec succès !', 'success')
+    return redirect(url_for('main.search_ride'))
 
 @api.route('/rides/<int:ride_id>/passengers')
 @login_required

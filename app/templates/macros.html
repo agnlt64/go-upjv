@@ -27,13 +27,13 @@
 
 {% macro flash_messages() %}
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="w-full rounded-lg p-2 my-4 text-center alert-{{ category }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="w-full rounded-lg p-2 my-4 text-center alert-{{ category }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
 {% endwith %}
 {% endmacro %}
 
@@ -46,9 +46,9 @@
 
 {% macro ride(item) %}
 <article class="bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 mb-6 transition-all duration-200">
-    
+
     <div class="md:flex md:items-center gap-4">
-        
+
         <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
             <span class="text-xs">{{ item.get_month() }}</span>
             <span class="text-2xl font-bold">{{ item.get_day() }}</span>
@@ -58,7 +58,11 @@
         <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2 mt-4 md:mt-0">
             <div>
                 <div class="text-sm text-slate-500">Chauffeur</div>
-                <div class="font-medium text-slate-900">{{ item.driver.to_str() }}</div>
+                <div class="font-medium text-slate-900">
+                    <a href="{{ url_for('main.public_profile', upjv_id=item.driver.upjv_id) }}" class="hover:underline">
+                        {{ item.driver.to_str() }}
+                    </a>
+                </div>
             </div>
 
             <div>
@@ -71,7 +75,7 @@
             <div>
                 <div class="text-sm text-slate-500">Départ</div>
                 <div class="font-medium text-slate-900 leading-tight">
-                    {{ item.start_location.name }} 
+                    {{ item.start_location.name }}
                     <span class="block text-xs text-slate-600 mt-1">{{ item.get_departure_time() }}</span>
                 </div>
             </div>
@@ -79,7 +83,7 @@
             <div>
                 <div class="text-sm text-slate-500">Arrivée</div>
                 <div class="font-medium text-slate-900 leading-tight">
-                    {{ item.end_location.name }} 
+                    {{ item.end_location.name }}
                     <span class="block text-xs text-slate-600 mt-1">{{ item.get_arrival_time() }}</span>
                 </div>
             </div>
@@ -87,7 +91,7 @@
 
         <div class="flex flex-col items-end gap-2 mt-4 md:mt-0">
             <button type="button"
-                class="btn-toggle-passengers bg-indigo-600 text-white font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-sm whitespace-nowrap" 
+                class="btn-toggle-passengers bg-indigo-600 text-white font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-sm whitespace-nowrap"
                 data-ride-id="{{ item.id }}">
                 Passagers ({{ item.passengers|length }})
             </button>
@@ -96,22 +100,22 @@
 
     <div id="passenger-list-{{ item.id }}" class="hidden mt-4 border-t border-indigo-100 pt-4">
         {% if item.passengers %}
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Liste des inscrits</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {% for passenger in item.passengers %}
-                <div class="flex items-center gap-3 p-2 rounded-md bg-white border border-slate-100 shadow-sm">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
-                        {{ passenger.first_name[0].upper() }}
-                    </div>
-                    <div class="flex flex-col overflow-hidden">
-                        <span class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{ passenger.last_name }}</span>
-                        <span class="text-[10px] text-slate-500 font-mono">ID: {{ passenger.upjv_id }}</span>
-                    </div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Liste des inscrits</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for passenger in item.passengers %}
+            <div class="flex items-center gap-3 p-2 rounded-md bg-white border border-slate-100 shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
+                    {{ passenger.first_name[0].upper() }}
                 </div>
-                {% endfor %}
+                <div class="flex flex-col overflow-hidden">
+                    <a href="{{ url_for('main.public_profile', upjv_id=passenger.upjv_id) }}" class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{ passenger.last_name }}</a>
+                    <span class="text-[10px] text-slate-500 font-mono">ID: {{ passenger.upjv_id }}</span>
+                </div>
             </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <p class="text-sm text-slate-500 italic text-center py-2">Aucun passager inscrit pour le moment.</p>
+        <p class="text-sm text-slate-500 italic text-center py-2">Aucun passager inscrit pour le moment.</p>
         {% endif %}
     </div>
 
@@ -121,7 +125,7 @@
 {% macro offer_ride(sys_name, label) %}
 <div id="container-{{ sys_name }}" 
      class="border-b-2 border-gray-200 pb-2 transition-all duration-300 group">
-    
+
     {# En-tête cliquable #}
     <div onclick="toggleInput('{{ sys_name }}')" class="flex justify-between items-center cursor-pointer">
         <span class="text-gray-400 font-bold text-xl group-hover:text-indigo-500 transition-colors">
@@ -140,5 +144,103 @@
         {{ caller() }}
     </div>
 
+</div>
+{% endmacro %}
+
+{% macro star_rating(rating, size='text-lg') %}
+<div class="flex items-center gap-0.5">
+    {% for i in range(1, 6) %}
+    {% if i <= rating|int %}
+        <span class="{{ size }} text-yellow-400">★</span>
+    {% elif i - 0.5 <= rating %}
+        <span class="{{ size }} text-yellow-400">★</span>
+    {% else %}
+        <span class="{{ size }} text-gray-300">★</span>
+    {% endif %}
+    {% endfor %}
+    <span class="text-sm text-gray-600 ml-1">({{ "%.1f"|format(rating) }})</span>
+</div>
+{% endmacro %}
+
+{% macro account_metadata(user) %}
+<div class="mt-6 pt-6 border-t border-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <p class="text-sm text-gray-600">Membre depuis</p>
+            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Statut du compte</p>
+            <p class="text-sm font-medium">
+                {% if user.is_admin %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">Admin</span>
+                {% elif user.is_active %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Actif</span>
+                {% else %}
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactif</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro vehicle_card(vehicle) %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Modèle</p>
+        <p class="font-medium text-gray-900">{{ vehicle.model }}</p>
+    </div>
+    <div class="p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Couleur</p>
+        <p class="font-medium text-gray-900">{{ vehicle.color if vehicle.color else '-' }}</p>
+    </div>
+    <div class="p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Immatriculation</p>
+        <p class="font-medium text-gray-900">{{ vehicle.licence_plate }}</p>
+    </div>
+    <div class="p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Places disponibles</p>
+        <p class="font-medium text-gray-900">{{ vehicle.max_seats }}</p>
+    </div>
+</div>
+<div class="mt-4">
+    <p class="text-sm text-gray-600 mb-2">Photo du véhicule</p>
+    {% if vehicle.image_path %}
+    <img src="{{ url_for('static', filename='uploads/vehicles/' + vehicle.image_path) }}" alt="{{ vehicle.model }}"
+        class="w-full h-48 object-cover rounded-lg shadow-sm">
+    {% else %}
+    <div class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+        <p class="text-gray-400 text-sm">Aucune photo</p>
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro review_card(review) %}
+<div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+    <div class="flex items-start justify-between mb-2">
+        <div>
+            <a href="{{ url_for('main.public_profile', upjv_id=review.author.upjv_id) }}" class="font-medium text-gray-900 hover:underline">{{ review.author.first_name }} {{ review.author.last_name }}</a>
+            <p class="text-xs text-gray-500">{{ review.ride.date.strftime('%d/%m/%Y') }}</p>
+        </div>
+        <div class="flex items-center gap-0.5">
+            {% for i in range(1, 6) %}
+            {% if i <= review.rating %}
+                <span class="text-yellow-400">★</span>
+            {% else %}
+                <span class="text-gray-300">★</span>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% if review.content %}
+    <p class="text-gray-700 text-sm">{{ review.content }}</p>
+    {% else %}
+    <p class="text-gray-400 text-sm italic">Aucun commentaire</p>
+    {% endif %}
 </div>
 {% endmacro %}

@@ -22,27 +22,27 @@
             <ul class="flex justify-between items-center">
                 <div>
                     {% if user.is_authenticated %}
-                        {{ nav_link('main.logout', logout_icon()) }}
+                    {{ nav_link('main.logout', logout_icon()) }}
                     {% else %}
-                        {{ nav_link('main.index', logo()) }}
+                    {{ nav_link('main.index', logo()) }}
                     {% endif %}
                 </div>
                 <div class="flex gap-8">
                     {% if not user.is_authenticated %}
-                        {{ nav_link('main.sign_up', 'Inscription') }}
-                        {{ nav_link('main.login', 'Connexion') }}
+                    {{ nav_link('main.sign_up', 'Inscription') }}
+                    {{ nav_link('main.login', 'Connexion') }}
                     {% else %}
-                        {{ nav_link('main.search_ride', 'Rechercher un trajet') }}
-                        {{ nav_link('main.offer_ride', 'Proposer un trajet') }}
-                        {{ nav_link('main.my_reservations', 'Mes réservations') }}
+                    {{ nav_link('main.search_ride', 'Rechercher un trajet') }}
+                    {{ nav_link('main.offer_ride', 'Proposer un trajet') }}
+                    {{ nav_link('main.my_reservations', 'Mes réservations') }}
                     {% endif %}
                     {% if user.is_admin %}
-                        {{ nav_link('admin.admin_index', 'Administration') }}
+                    {{ nav_link('admin.admin_index', 'Administration') }}
                     {% endif %}
                 </div>
                 <div>
                     {% if user.is_authenticated %}
-                        {{ nav_link('main.user_profile', user_icon()) }}
+                    {{ nav_link('main.settings', user_icon()) }}
                     {% endif %}
                 </div>
             </ul>
@@ -54,4 +54,5 @@
     {# C'est ici que les templates enfants injecteront leurs propres scripts #}
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from "macros.html" import flash_messages, edit_icon, trash_icon %}
+{% from "macros.html" import flash_messages, edit_icon, trash_icon, vehicle_card, account_metadata %}
 
 {% block title %}Profil - GoUPJV{% endblock %}
 
@@ -7,8 +7,9 @@
 <main class="flex-grow w-full bg-gray-50 pt-[6rem] pb-8">
     <div class="container mx-auto px-4 max-w-4xl">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Mon Profil</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Mon profil</h1>
             <p class="text-gray-600 mt-2">Gérez vos informations personnelles et votre véhicule</p>
+            <a href="{{ url_for('main.public_profile', upjv_id=user.upjv_id) }}" class="text-blue-600 hover:underline">Voir mon profil public</a>
         </div>
 
         {{ flash_messages() }}
@@ -66,35 +67,16 @@
                             value="{{ user.phone_number if user.phone_number else '' }}" disabled
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
                     </div>
-                </div>
-
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Informations du compte</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm text-gray-600">Membre depuis</p>
-                            <p class="text-sm font-medium text-gray-900">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Statut du compte</p>
-                            <p class="text-sm font-medium">
-                                {% if user.is_admin %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500 text-white">
-                                    Admin
-                                </span>
-                                {% elif user.is_active %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Actif
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Inactif
-                                </span>
-                                {% endif %}
-                            </p>
-                        </div>
+                    <div class="md:col-span-2">
+                        <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">
+                            Bio
+                        </label>
+                        <textarea id="bio" name="bio" rows="4" disabled
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">{{ user.bio if user.bio else '' }}</textarea>
                     </div>
                 </div>
+
+                {{ account_metadata(user) }}
 
                 <div id="profileActions" class="hidden mt-6 flex gap-3">
                     <button type="submit"
@@ -111,7 +93,7 @@
 
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">Mon Véhicule</h2>
+                <h2 class="text-xl font-semibold text-gray-900">Mon véhicule</h2>
                 {% if user.vehicle %}
                 <button id="editVehicleBtn" type="button"
                     class="p-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all">
@@ -122,36 +104,7 @@
 
             {% if user.vehicle %}
             <div id="vehicleDisplay">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Modèle</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.model }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Couleur</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.color if user.vehicle.color else '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Immatriculation</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.licence_plate }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-1">Places disponibles</p>
-                        <p class="font-medium text-gray-900">{{ user.vehicle.max_seats }}</p>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <p class="text-sm text-gray-600 mb-2">Photo du véhicule</p>
-                    {% if user.vehicle.image_path %}
-                    <img src="{{ url_for('static', filename='uploads/vehicles/' + user.vehicle.image_path) }}"
-                        alt="{{ user.vehicle.model }}" class="w-full h-48 object-cover rounded-lg shadow-sm">
-                    {% else %}
-                    <div class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <p class="text-gray-400 text-sm">Aucune photo</p>
-                    </div>
-                    {% endif %}
-                </div>
+                {{ vehicle_card(user.vehicle) }}
 
                 <form action="{{ url_for('api.delete_vehicle') }}" method="POST"
                     class="mt-6 pt-6 border-t border-gray-200 flex justify-end">
@@ -354,5 +307,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/user_profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 {% endblock %}
