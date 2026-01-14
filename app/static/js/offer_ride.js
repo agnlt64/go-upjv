@@ -77,11 +77,18 @@ const searchCities = async (type, query) => {
                     const safeName = label.replace(/'/g, "\\'");
                     return `
                         <button type="button" 
-                            onclick="selectLocation('${type}', '${safeName}', ${lat}, ${lon})"
-                            class="w-full text-left bg-white hover:bg-indigo-50 text-gray-700 p-3 border-b border-gray-100 text-sm">
+                            data-location='{"type":"${type}","name":"${safeName}","lat":${lat},"lon":${lon}}'
+                            class="suggestion-btn w-full text-left bg-white hover:bg-indigo-50 text-gray-700 p-3 border-b border-gray-100 text-sm">
                             ${label}
                         </button>`;
                 }).join('');
+
+                container.querySelectorAll('.suggestion-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const loc = JSON.parse(btn.dataset.location);
+                        selectLocation(loc.type, loc.name, loc.lat, loc.lon);
+                    });
+                });
             } else {
                 container.innerHTML = '<div class="p-2 text-xs text-gray-400 italic">Adresse inconnue à Amiens</div>';
             }
@@ -106,7 +113,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = $('input-jour');
     const timeInput = $('input-heure');
     const errorHeure = $('error-heure');
+    const inputDepart = $('input-depart');
+    const inputArrivee = $('input-arrivee');
+    const seatsInput = $('input-seats');
 
+    // Toggle handlers for offer_ride sections
+    document.querySelectorAll('.offer-ride-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            toggleInput(toggle.dataset.toggle);
+        });
+    });
+
+    // City search handlers
+    inputDepart?.addEventListener('input', (e) => searchCities('depart', e.target.value));
+    inputArrivee?.addEventListener('input', (e) => searchCities('arrivee', e.target.value));
+
+    // Stop propagation for inputs inside collapsible sections
+    [timeInput, dateInput, seatsInput].forEach(input => {
+        input?.addEventListener('click', (e) => e.stopPropagation());
+    });
+
+    // Max seats validation
+    if (seatsInput) {
+        const maxSeats = parseInt(seatsInput.dataset.max);
+        seatsInput.addEventListener('input', () => {
+            if (parseInt(seatsInput.value) > maxSeats) {
+                seatsInput.value = maxSeats;
+            }
+        });
+    }
+
+    // Date validation
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
@@ -150,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timeInput.addEventListener('input', validateTime);
     }
 
+    // Form validation
     if (form) {
         form.addEventListener('submit', (event) => {
             const latDepart = $('lat-depart')?.value;
@@ -157,8 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const lngDepart = $('lng-depart')?.value;
             const lngArrivee = $('lng-arrivee')?.value;
 
-            const inputDepart = $('input-depart');
-            const inputArrivee = $('input-arrivee');
             const errorDepart = $('error-depart');
             const errorArrivee = $('error-arrivee');
 

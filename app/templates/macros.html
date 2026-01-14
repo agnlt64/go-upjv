@@ -1,23 +1,46 @@
 {% macro logout_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out">
+    <path d="m16 17 5-5-5-5" />
+    <path d="M21 12H9" />
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+</svg>
 {% endmacro %}
 
 {% macro user_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round-icon lucide-circle-user-round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-circle-user-round-icon lucide-circle-user-round">
+    <path d="M18 20a6 6 0 0 0-12 0" />
+    <circle cx="12" cy="10" r="4" />
+    <circle cx="12" cy="12" r="10" />
+</svg>
 {% endmacro %}
 
 {% macro edit_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="lucide lucide-square-pen-icon lucide-square-pen">
+    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path
+        d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+</svg>
 {% endmacro %}
 
 {% macro trash_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash">
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M3 6h18" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+</svg>
 {% endmacro %}
 
 {% macro nav_link(endpoint, label) %}
 <li>
     <a href="{{ url_for(endpoint) }}"
-        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == endpoint %}underline{% endif %}">{{ label }}</a>
+        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == endpoint %}underline{% endif %}">{{
+        label }}</a>
 </li>
 {% endmacro %}
 
@@ -49,7 +72,8 @@
 
     <div class="md:flex md:items-center gap-4">
 
-        <div class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
+        <div
+            class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
             <span class="text-xs">{{ item.get_month() }}</span>
             <span class="text-2xl font-bold">{{ item.get_day() }}</span>
             <span class="text-xs">{{ item.get_year() }}</span>
@@ -104,11 +128,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {% for passenger in item.passengers %}
             <div class="flex items-center gap-3 p-2 rounded-md bg-white border border-slate-100 shadow-sm">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
+                <div
+                    class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200 shrink-0">
                     {{ passenger.first_name[0].upper() }}
                 </div>
                 <div class="flex flex-col overflow-hidden">
-                    <a href="{{ url_for('main.public_profile', upjv_id=passenger.upjv_id) }}" class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{ passenger.last_name }}</a>
+                    <a href="{{ url_for('main.public_profile', upjv_id=passenger.upjv_id) }}"
+                        class="text-sm font-semibold text-slate-800 truncate">{{ passenger.first_name }} {{
+                        passenger.last_name }}</a>
                     <span class="text-[10px] text-slate-500 font-mono">ID: {{ passenger.upjv_id }}</span>
                 </div>
             </div>
@@ -123,17 +150,18 @@
 {% endmacro %}
 
 {% macro offer_ride(sys_name, label) %}
-<div id="container-{{ sys_name }}" 
-     class="border-b-2 border-gray-200 pb-2 transition-all duration-300 group">
+<div id="container-{{ sys_name }}" class="border-b-2 border-gray-200 pb-2 transition-all duration-300 group">
 
     {# En-tête cliquable #}
-    <div onclick="toggleInput('{{ sys_name }}')" class="flex justify-between items-center cursor-pointer">
+    <div data-toggle="{{ sys_name }}" class="offer-ride-toggle flex justify-between items-center cursor-pointer">
         <span class="text-gray-400 font-bold text-xl group-hover:text-indigo-500 transition-colors">
             {{ label }}
         </span>
 
-        <div class="bg-gray-100 rounded-md p-2 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
-            <svg id="icon-{{ sys_name }}" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div
+            class="bg-gray-100 rounded-md p-2 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+            <svg id="icon-{{ sys_name }}" class="w-4 h-4 transition-transform duration-300" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
             </svg>
         </div>
@@ -150,15 +178,13 @@
 {% macro star_rating(rating, size='text-lg') %}
 <div class="flex items-center gap-0.5">
     {% for i in range(1, 6) %}
-    {% if i <= rating|int %}
-        <span class="{{ size }} text-yellow-400">★</span>
-    {% elif i - 0.5 <= rating %}
-        <span class="{{ size }} text-yellow-400">★</span>
-    {% else %}
-        <span class="{{ size }} text-gray-300">★</span>
-    {% endif %}
-    {% endfor %}
-    <span class="text-sm text-gray-600 ml-1">({{ "%.1f"|format(rating) }})</span>
+    {% if i <= rating|int %} <span class="{{ size }} text-yellow-400">★</span>
+        {% elif i - 0.5 <= rating %} <span class="{{ size }} text-yellow-400">★</span>
+            {% else %}
+            <span class="{{ size }} text-gray-300">★</span>
+            {% endif %}
+            {% endfor %}
+            <span class="text-sm text-gray-600 ml-1">({{ "%.1f"|format(rating) }})</span>
 </div>
 {% endmacro %}
 
@@ -224,17 +250,18 @@
 <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
     <div class="flex items-start justify-between mb-2">
         <div>
-            <a href="{{ url_for('main.public_profile', upjv_id=review.author.upjv_id) }}" class="font-medium text-gray-900 hover:underline">{{ review.author.first_name }} {{ review.author.last_name }}</a>
+            <a href="{{ url_for('main.public_profile', upjv_id=review.author.upjv_id) }}"
+                class="font-medium text-gray-900 hover:underline">{{ review.author.first_name }} {{
+                review.author.last_name }}</a>
             <p class="text-xs text-gray-500">{{ review.ride.date.strftime('%d/%m/%Y') }}</p>
         </div>
         <div class="flex items-center gap-0.5">
             {% for i in range(1, 6) %}
-            {% if i <= review.rating %}
-                <span class="text-yellow-400">★</span>
-            {% else %}
+            {% if i <= review.rating %} <span class="text-yellow-400">★</span>
+                {% else %}
                 <span class="text-gray-300">★</span>
-            {% endif %}
-            {% endfor %}
+                {% endif %}
+                {% endfor %}
         </div>
     </div>
     {% if review.content %}

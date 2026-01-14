@@ -70,7 +70,7 @@
                         <input type="hidden" id="lng-depart" name="start_lon">
 
                         <input type="text" id="input-depart" name="start_location"
-                            placeholder="Saisissez votre ville..." oninput="searchCities('depart', this.value)"
+                            placeholder="Saisissez votre ville..."
                             class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                             autocomplete="off" required>
 
@@ -88,7 +88,6 @@
                         <input type="hidden" id="lng-arrivee" name="end_lon">
 
                         <input type="text" id="input-arrivee" name="end_location" placeholder="Saisissez votre ville..."
-                            oninput="searchCities('arrivee', this.value)"
                             class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                             autocomplete="off" required>
 
@@ -103,7 +102,7 @@
                     {% call offer_ride('heure_depart', 'Heure de départ') %}
                     <input type="time" id="input-heure" name="departure_time"
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                        onclick="event.stopPropagation()" required>
+                        required>
 
                     <p id="error-heure" class="hidden mt-2 text-xs text-red-600 font-bold">
                         Impossible de voyager dans le passé !
@@ -120,15 +119,16 @@
                     {% call offer_ride('jour', 'Jour') %}
                     <input type="date" name="ride_date" id="input-jour"
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                        onclick="event.stopPropagation()" required>
+                        required>
                     {% endcall %}
 
                     {% call offer_ride('passagers', 'Passagers possible') %}
-                    <input type="number" name="seats" min="1" max="{{ current_user.vehicle.max_seats }}"
+                    <input type="number" name="seats" id="input-seats" min="1"
+                        max="{{ current_user.vehicle.max_seats }}"
                         placeholder="{{ current_user.vehicle.max_seats }} maximum"
-                        oninput="if(parseInt(this.value) > {{ current_user.vehicle.max_seats }}) this.value = {{ current_user.vehicle.max_seats }};"
+                        data-max="{{ current_user.vehicle.max_seats }}"
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                        onclick="event.stopPropagation()" required>
+                        required>
                     {% endcall %}
                 </div>
 
