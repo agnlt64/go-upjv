@@ -229,4 +229,149 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ===== EDIT RIDE MODAL =====
+    const modal = $('edit-ride-modal');
+    const editForm = $('edit-ride-form');
+    const closeBtn = $('close-edit-modal');
+    const cancelBtn = $('cancel-edit-btn');
+    const errorMsg = $('edit-error-message');
+
+    if (!modal || !editForm) return; // Skip if modal doesn't exist
+
+    let editSearchTimeout = null;
+
+    // Open modal when clicking on ride card
+    document.querySelectorAll('.edit-ride-btn').forEach(card => {
+        card.addEventListener('click', () => {
+            $('edit-ride-id').value = card.dataset.rideId;
+            $('edit-ride-date').value = card.dataset.rideDate;
+            $('edit-ride-time').value = card.dataset.rideTime;
+            $('edit-ride-seats').value = card.dataset.rideSeats;
+            $('edit-start-location').value = card.dataset.startName;
+            $('edit-start-lat').value = card.dataset.startLat;
+            $('edit-start-lon').value = card.dataset.startLon;
+            $('edit-end-location').value = card.dataset.endName;
+            $('edit-end-lat').value = card.dataset.endLat;
+            $('edit-end-lon').value = card.dataset.endLon;
+
+            // Mark inputs as valid initially
+            ['edit-start-location', 'edit-end-location'].forEach(id => {
+                $(id).classList.add('border-green-500');
+                $(id).classList.remove('border-gray-300');
+            });
+
+            errorMsg?.classList.add('hidden');
+            modal.classList.remove('hidden');
+        });
+    });
+
+    // Close modal
+    const closeModal = () => {
+        modal.classList.add('hidden');
+        editForm.reset();
+        errorMsg?.classList.add('hidden');
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Address autocomplete for edit modal
+    const searchEditAddress = async (type, query) => {
+        const container = $(`edit-suggestions-${type}`);
+        const latInput = $(`edit-${type}-lat`);
+        const lonInput = $(`edit-${type}-lon`);
+        const textInput = $(`edit-${type}-location`);
+
+        // Clear validation when typing
+        latInput.value = '';
+        lonInput.value = '';
+        textInput.classList.remove('border-green-500');
+        textInput.classList.add('border-gray-300');
+
+        if (!query || query.length < 3) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        if (editSearchTimeout) clearTimeout(editSearchTimeout);
+
+        editSearchTimeout = setTimeout(async () => {
+            try {
+                const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&citycode=80021&limit=5`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.features?.length > 0) {
+                    container.innerHTML = data.features.map(f => {
+                        const [lon, lat] = f.geometry.coordinates;
+                        return `<button type="button" class="edit-suggestion w-full text-left p-2 hover:bg-indigo-50 text-sm border-b border-gray-100"
+                            data-type="${type}" data-lat="${lat}" data-lon="${lon}" data-name="${f.properties.label.replace(/"/g, '&quot;')}">
+                            ${f.properties.label}
+                        </button>`;
+                    }).join('');
+
+                    container.querySelectorAll('.edit-suggestion').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            textInput.value = btn.dataset.name;
+                            latInput.value = btn.dataset.lat;
+                            lonInput.value = btn.dataset.lon;
+                            textInput.classList.add('border-green-500');
+                            textInput.classList.remove('border-gray-300');
+                            container.classList.add('hidden');
+                        });
+                    });
+
+                    container.classList.remove('hidden');
+                } else {
+                    container.innerHTML = '<div class="p-2 text-sm text-gray-400 italic">Aucune adresse trouvée</div>';
+                    container.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }, 200);
+    };
+
+    $('edit-start-location')?.addEventListener('input', (e) => searchEditAddress('start', e.target.value));
+    $('edit-end-location')?.addEventListener('input', (e) => searchEditAddress('end', e.target.value));
+
+    // Edit form submission
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const startLat = $('edit-start-lat').value;
+        const endLat = $('edit-end-lat').value;
+
+        if (!startLat || !endLat) {
+            errorMsg.textContent = 'Veuillez sélectionner des adresses valides dans les suggestions.';
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+
+        const rideId = $('edit-ride-id').value;
+        const formData = new FormData(editForm);
+
+        try {
+            const response = await fetch(`/api/update-ride/${rideId}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.reload();
+            } else {
+                errorMsg.textContent = data.message;
+                errorMsg.classList.remove('hidden');
+            }
+        } catch (err) {
+            errorMsg.textContent = 'Une erreur est survenue.';
+            errorMsg.classList.remove('hidden');
+        }
+    });
 });
