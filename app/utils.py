@@ -212,7 +212,7 @@ def create_ride(driver_id, start_location_id, end_location_id, date, seats):
 def get_user_rides(user_id):
     """Récupère tous les trajets d'un utilisateur"""
     from app.models.ride import Ride
-    return Ride.query.filter(Ride.driver_id == user_id).all()
+    return Ride.query.filter(Ride.driver_id == user_id).order_by(Ride.date.asc()).all()
 
 def get_location_suggestions(limit=3):
     """Récupère des suggestions de lieux"""
