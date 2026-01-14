@@ -18,7 +18,7 @@
         {{ ride(element) }}
     </div>
     {% else %}
-    {{ ride(element) }}
+    {{ ride(element, show_leave=True) }}
     {% endif %}
     {% else %}
     <p class="text-gray-500 italic">Aucune réservation à venir.</p>

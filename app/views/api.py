@@ -223,6 +223,19 @@ def book_ride(ride_id):
     flash('Réservation enregistrée avec succès !', 'success')
     return redirect(url_for('main.search_ride'))
 
+@api.route('/leave-ride/<int:ride_id>', methods=['POST'])
+@login_required
+def leave_ride(ride_id):
+    ride = Ride.query.get_or_404(ride_id)
+    if current_user not in ride.passengers:
+        flash('Vous n\'êtes pas inscrit à ce trajet.', 'error')
+        return redirect(url_for('main.my_reservations'))
+    ride.passengers.remove(current_user)
+    ride.seats += 1
+    db.session.commit()
+    flash('Vous avez quitté le trajet avec succès.', 'success')
+    return redirect(url_for('main.my_reservations'))
+
 @api.route('/cancel-ride/<int:ride_id>', methods=['POST'])
 @login_required
 def cancel_ride(ride_id):
