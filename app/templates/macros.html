@@ -55,11 +55,7 @@
 {% endmacro %}
 
 {% macro nav_link(endpoint, label) %}
-<li>
-    <a href="{{ url_for(endpoint) }}"
-        class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == endpoint %}underline{% endif %}">{{
-        label }}</a>
-</li>
+<a href="{{ url_for(endpoint) }}" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 {% if request.endpoint == endpoint %}underline{% endif %}">{{label }}</a>
 {% endmacro %}
 
 {% macro logo() %}

@@ -18,16 +18,17 @@
 
 <body class="h-screen flex flex-col bg-gray-50">
     <header class="fixed top-0 w-full z-50">
-        <nav class="px-8 py-3 rounded-full m-5 bg-white border border-gray-200 shadow-lg">
-            <ul class="flex justify-between items-center">
-                <div>
+        <nav class="px-4 md:px-8 py-3 rounded-full m-3 md:m-5 bg-white border border-gray-200 shadow-lg">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
                     {% if user.is_authenticated %}
                     {{ nav_link('main.logout', logout_icon()) }}
                     {% else %}
                     {{ nav_link('main.index', logo()) }}
                     {% endif %}
                 </div>
-                <div class="flex gap-8">
+
+                <div class="hidden md:flex gap-8">
                     {% if not user.is_authenticated %}
                     {{ nav_link('main.sign_up', 'Inscription') }}
                     {{ nav_link('main.login', 'Connexion') }}
@@ -40,18 +41,52 @@
                     {{ nav_link('admin.admin_index', 'Administration') }}
                     {% endif %}
                 </div>
-                <div>
+
+                <div class="flex items-center gap-4">
                     {% if user.is_authenticated %}
-                    {{ nav_link('main.settings', user_icon()) }}
+                    <div class="hidden md:block">
+                        {{ nav_link('main.settings', user_icon()) }}
+                    </div>
                     {% endif %}
+
+                    <button id="mobile-menu-btn"
+                        class="md:hidden p-2 text-gray-600 hover:text-indigo-600 transition-colors">
+                        <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
-            </ul>
+            </div>
+
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-gray-100">
+                <ul class="flex flex-col gap-3">
+                    {% if not user.is_authenticated %}
+                    {{ nav_link('main.sign_up', 'Inscription') }}
+                    {{ nav_link('main.login', 'Connexion') }}
+                    {% else %}
+                    {{ nav_link('main.search_ride', 'Rechercher un trajet') }}
+                    {{ nav_link('main.offer_ride', 'Proposer un trajet') }}
+                    {{ nav_link('main.my_reservations', 'Mes réservations') }}
+                    {{ nav_link('main.settings', 'Mon profil') }}
+                    {% endif %}
+                    {% if user.is_admin %}
+                    {{ nav_link('admin.admin_index', 'Administration') }}
+                    {% endif %}
+                </ul>
+            </div>
         </nav>
     </header>
 
     {% block content %}{% endblock %}
 
     {% block scripts %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
 </body>
 
 </html>

@@ -10,9 +10,9 @@
     {% for ride in rides %}
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         {# Ride Header #}
-        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
+        <div class="bg-gray-50 px-4 md:px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -21,13 +21,13 @@
                         </svg>
                         <span class="font-medium text-gray-700">{{ ride.date.strftime('%d/%m/%Y à %H:%M') }}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                        <span class="font-semibold">{{ ride.start_location.name }}</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-2 text-gray-600 text-sm md:text-base">
+                        <span class="font-semibold truncate">{{ ride.start_location.name }}</span>
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                         </svg>
-                        <span class="font-semibold">{{ ride.end_location.name }}</span>
+                        <span class="font-semibold truncate">{{ ride.end_location.name }}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -43,11 +43,10 @@
         {# Reviews List #}
         <div class="divide-y divide-gray-100">
             {% for review in ride.reviews %}
-            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start justify-between">
+            <div class="px-4 md:px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            {# Star Rating #}
+                        <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
                             <div class="flex items-center gap-1">
                                 {% for i in range(5) %}
                                 <svg class="w-4 h-4 {{ 'text-yellow-400' if i < review.rating else 'text-gray-300' }}"
@@ -77,7 +76,7 @@
                         <p class="text-gray-400 text-sm italic">Aucun commentaire</p>
                         {% endif %}
                     </div>
-                    <div class="ml-4">
+                    <div class="md:ml-4">
                         <button name="delete-review" data-review-id="{{ review.id }}"
                             class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded hover:shadow transition-all">
                             Supprimer
@@ -99,30 +98,8 @@
     </svg>
     <p class="text-gray-500 text-lg">Aucun avis à modérer</p>
 </div>
-{% endif %}
+{% endblock %}
 
-<script>
-    document.querySelectorAll('[name="delete-review"]').forEach(button => {
-        button.addEventListener('click', async function () {
-            const reviewId = this.dataset.reviewId;
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
-
-            try {
-                const response = await fetch(`/api/reviews/${reviewId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Erreur lors de la suppression de l\'avis');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Erreur lors de la suppression de l\'avis');
-            }
-        });
-    });
-</script>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_reviews.js') }}"></script>
 {% endblock %}
