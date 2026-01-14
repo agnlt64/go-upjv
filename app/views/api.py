@@ -322,3 +322,15 @@ def submit_review():
     db.session.commit()
     
     return success('Avis enregistré avec succès')
+
+@api.route('/reviews/<int:review_id>', methods=['DELETE'])
+@login_required
+def delete_review(review_id):
+    if not current_user.is_admin:
+        return error('Unauthorized', 403)
+    
+    review = Review.query.get_or_404(review_id)
+    db.session.delete(review)
+    db.session.commit()
+    
+    return success('Avis supprimé avec succès')
