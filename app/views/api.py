@@ -259,6 +259,69 @@ def cancel_ride(ride_id):
     flash('Trajet annulé avec succès.', 'success')
     return redirect(url_for('main.offer_ride'))
 
+@api.route('/update-ride/<int:ride_id>', methods=['POST'])
+@login_required
+def update_ride(ride_id):
+    ride = Ride.query.get_or_404(ride_id)
+    
+    if ride.driver_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Vous ne pouvez modifier que vos propres trajets.'}), 403
+    
+    if ride.is_cancelled:
+        return jsonify({'success': False, 'message': 'Impossible de modifier un trajet annulé.'}), 400
+    
+    if ride.date < datetime.now():
+        return jsonify({'success': False, 'message': 'Impossible de modifier un trajet passé.'}), 400
+    
+    # Get form data
+    ride_date = request.form.get('ride_date')
+    departure_time = request.form.get('departure_time')
+    seats = request.form.get('seats')
+    start_lat = request.form.get('start_lat')
+    start_lon = request.form.get('start_lon')
+    start_name = request.form.get('start_location')
+    end_lat = request.form.get('end_lat')
+    end_lon = request.form.get('end_lon')
+    end_name = request.form.get('end_location')
+    
+    # Update date and time
+    if ride_date and departure_time:
+        try:
+            new_datetime = datetime.strptime(f"{ride_date} {departure_time}", "%Y-%m-%d %H:%M")
+            if new_datetime < datetime.now():
+                return jsonify({'success': False, 'message': 'La date ne peut pas être dans le passé.'}), 400
+            ride.date = new_datetime
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Format de date invalide.'}), 400
+    
+    # Update seats
+    if seats:
+        try:
+            new_seats = int(seats)
+            if new_seats < len(ride.passengers):
+                return jsonify({'success': False, 'message': f'Impossible de réduire à {new_seats} places, {len(ride.passengers)} passagers sont déjà inscrits.'}), 400
+            if new_seats < 1:
+                return jsonify({'success': False, 'message': 'Le nombre de places doit être au moins 1.'}), 400
+            ride.seats = new_seats
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Nombre de places invalide.'}), 400
+    
+    # Update start location
+    if start_lat and start_lon and start_name:
+        ride.start_location.lat = float(start_lat)
+        ride.start_location.lon = float(start_lon)
+        ride.start_location.name = start_name
+    
+    # Update end location
+    if end_lat and end_lon and end_name:
+        ride.end_location.lat = float(end_lat)
+        ride.end_location.lon = float(end_lon)
+        ride.end_location.name = end_name
+    
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Trajet mis à jour avec succès.'})
+
 @api.route('/rides/<int:ride_id>/passengers')
 @login_required
 def get_ride_passengers(ride_id):
