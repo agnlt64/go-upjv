@@ -20,7 +20,6 @@
     <header class="fixed top-0 w-full z-50">
         <nav class="px-4 md:px-8 py-3 rounded-full m-3 md:m-5 bg-white border border-gray-200 shadow-lg">
             <div class="flex justify-between items-center">
-                <!-- Left: Logo/Logout -->
                 <div class="flex items-center">
                     {% if user.is_authenticated %}
                     {{ nav_link('main.logout', logout_icon()) }}
@@ -29,7 +28,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Center: Desktop Nav Links -->
                 <div class="hidden md:flex gap-8">
                     {% if not user.is_authenticated %}
                     {{ nav_link('main.sign_up', 'Inscription') }}
@@ -44,7 +42,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Right: User icon (desktop) + Hamburger (mobile) -->
                 <div class="flex items-center gap-4">
                     {% if user.is_authenticated %}
                     <div class="hidden md:block">
@@ -52,7 +49,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- Hamburger Button (mobile only) -->
                     <button id="mobile-menu-btn"
                         class="md:hidden p-2 text-gray-600 hover:text-indigo-600 transition-colors">
                         <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,23 +83,10 @@
         </nav>
     </header>
 
-    <script>
-        document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
-            const nav = document.querySelector('header nav');
-            const menu = document.getElementById('mobile-menu');
-            const hamburger = document.getElementById('hamburger-icon');
-            const close = document.getElementById('close-icon');
-            menu.classList.toggle('hidden');
-            hamburger.classList.toggle('hidden');
-            close.classList.toggle('hidden');
-            nav.classList.toggle('rounded-full');
-            nav.classList.toggle('rounded');
-        });
-    </script>
-
     {% block content %}{% endblock %}
 
     {% block scripts %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
 </body>
 
 </html>

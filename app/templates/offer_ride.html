@@ -17,7 +17,7 @@
     </svg>
 </button>
 
-<div id="sidebar-overlay" class="hidden lg:hidden fixed inset-0 bg-black/30 z-10" onclick="toggleSidebar()"></div>
+<div id="sidebar-overlay" class="hidden lg:hidden fixed inset-0 bg-black/30 z-10"></div>
 
 <aside id="rides-sidebar"
     class="fixed top-20 left-0 z-10 h-[calc(100vh-5rem)] w-80 bg-white border-r border-gray-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] overflow-y-auto p-6 transition-transform duration-300 -translate-x-full lg:translate-x-0">
@@ -83,21 +83,6 @@
         {% endfor %}
     </div>
 </aside>
-
-<script>
-    function toggleSidebar() {
-        const sidebar = document.getElementById('rides-sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const openIcon = document.getElementById('sidebar-open-icon');
-        const closeIcon = document.getElementById('sidebar-close-icon');
-
-        sidebar.classList.toggle('-translate-x-full');
-        overlay.classList.toggle('hidden');
-        openIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    }
-    document.getElementById('sidebar-toggle')?.addEventListener('click', toggleSidebar);
-</script>
 {% endif %}
 
 <div class="container mx-auto px-4 py-32 max-w-6xl transition-all duration-300 {% if mes_trajets %}lg:pl-80{% endif %}">

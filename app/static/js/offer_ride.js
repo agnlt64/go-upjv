@@ -109,6 +109,22 @@ const showError = (input, errorMsgElement, text) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // sidebar hamburger menu
+    const sidebar = $('rides-sidebar');
+    const sidebarOverlay = $('sidebar-overlay');
+    const sidebarToggle = $('sidebar-toggle');
+
+    const toggleSidebar = () => {
+        sidebar?.classList.toggle('-translate-x-full');
+        sidebarOverlay?.classList.toggle('hidden');
+        $('sidebar-open-icon')?.classList.toggle('hidden');
+        $('sidebar-close-icon')?.classList.toggle('hidden');
+    };
+
+    sidebarToggle?.addEventListener('click', toggleSidebar);
+    sidebarOverlay?.addEventListener('click', toggleSidebar);
+
+    // offer ride form
     const form = $('offer-ride-form');
     const dateInput = $('input-jour');
     const timeInput = $('input-heure');
@@ -117,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputArrivee = $('input-arrivee');
     const seatsInput = $('input-seats');
 
-    // Toggle handlers for offer_ride sections
+    // offer ride toggle handlers
     document.querySelectorAll('.offer-ride-toggle').forEach(toggle => {
         toggle.addEventListener('click', () => {
             toggleInput(toggle.dataset.toggle);
