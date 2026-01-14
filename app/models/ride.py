@@ -14,6 +14,7 @@ class Ride(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
     seats = db.Column(db.Integer, nullable=False)
+    is_cancelled = db.Column(db.Boolean, default=False, nullable=False)
     
     driver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     start_location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)

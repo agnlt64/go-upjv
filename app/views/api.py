@@ -223,6 +223,29 @@ def book_ride(ride_id):
     flash('Réservation enregistrée avec succès !', 'success')
     return redirect(url_for('main.search_ride'))
 
+@api.route('/cancel-ride/<int:ride_id>', methods=['POST'])
+@login_required
+def cancel_ride(ride_id):
+    ride = Ride.query.get_or_404(ride_id)
+    
+    if ride.driver_id != current_user.id:
+        flash('Vous ne pouvez annuler que vos propres trajets.', 'error')
+        return redirect(url_for('main.offer_ride'))
+    
+    if ride.is_cancelled:
+        flash('Ce trajet est déjà annulé.', 'error')
+        return redirect(url_for('main.offer_ride'))
+    
+    if ride.date < datetime.now():
+        flash('Impossible d\'annuler un trajet passé.', 'error')
+        return redirect(url_for('main.offer_ride'))
+    
+    ride.is_cancelled = True
+    db.session.commit()
+    
+    flash('Trajet annulé avec succès.', 'success')
+    return redirect(url_for('main.offer_ride'))
+
 @api.route('/rides/<int:ride_id>/passengers')
 @login_required
 def get_ride_passengers(ride_id):
