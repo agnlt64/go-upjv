@@ -109,7 +109,7 @@ const showError = (input, errorMsgElement, text) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+    const form = $('offer-ride-form');
     const dateInput = $('input-jour');
     const timeInput = $('input-heure');
     const errorHeure = $('error-heure');

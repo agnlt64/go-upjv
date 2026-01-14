@@ -47,7 +47,7 @@ def settings():
 @login_required
 def search_ride():
     now = datetime.now()
-    rides = Ride.query.filter(Ride.date >= now, Ride.seats > 0).order_by(Ride.date.asc()).all()
+    rides = Ride.query.filter(Ride.date >= now, Ride.seats > 0, Ride.is_cancelled == False).order_by(Ride.date.asc()).all()
     return render_template('search_ride.html', rides=rides)
 
 @main.route('/my-reservations')

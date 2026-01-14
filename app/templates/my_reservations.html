@@ -9,7 +9,17 @@
     <h1 class="text-4xl mb-4">À venir</h1>
 
     {% for element in upcoming_rides %}
+    {% if element.is_cancelled %}
+    <div class="relative">
+        <div class="absolute inset-0 bg-red-50/80 rounded-lg z-10 flex items-center justify-center">
+            <span class="bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-sm uppercase tracking-wide">Trajet
+                annulé</span>
+        </div>
+        {{ ride(element) }}
+    </div>
+    {% else %}
     {{ ride(element) }}
+    {% endif %}
     {% else %}
     <p class="text-gray-500 italic">Aucune réservation à venir.</p>
     {% endfor %}
