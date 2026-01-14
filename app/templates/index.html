@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="primary-blue text-white py-32 px-6">
+<section class="hero text-white py-32 px-6">
     <div class="max-w-6xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Covoiturez vers l'IUT facilement et gratuitement
@@ -38,8 +38,8 @@
                     Profitez d'un réseau exclusif d'entraide étudiant pour vos trajets quotidiens vers le campus.
                 </p>
             </div>
-            <div class="feature-placeholder">
-                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            <div>
+                <img src="{{ url_for('static', filename='media/students.jpg') }}" class="rounded-lg" alt="entre étudiants">
             </div>
         </div>
     </div>
@@ -48,9 +48,7 @@
 <section class="py-32 px-6 bg-gray-50">
     <div class="max-w-6xl mx-auto">
         <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div class="feature-placeholder order-2 md:order-1">
-                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
-            </div>
+            <img src="{{ url_for('static', filename='media/gratuit.jpg') }}" class="rounded-lg" alt="c'est gratuit">
             <div class="order-1 md:order-2">
                 <div class="text-6xl mb-6">💰</div>
                 <h2 class="text-4xl font-bold mb-6 text-gray-900">Totalement Gratuit</h2>
@@ -81,8 +79,8 @@
                     parfaite.
                 </p>
             </div>
-            <div class="feature-placeholder">
-                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            <div>
+                <img src="{{ url_for('static', filename='media/iut.jpeg') }}" class="rounded-lg" alt="iut">
             </div>
         </div>
     </div>
@@ -91,8 +89,8 @@
 <section class="py-32 px-6 bg-gray-50">
     <div class="max-w-6xl mx-auto">
         <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div class="feature-placeholder order-2 md:order-1">
-                <span class="text-gray-400 text-lg font-medium">Image Placeholder</span>
+            <div class="border border-black rounded-lg">
+                <img src="{{ url_for('static', filename='media/simple.png') }}" class="rounded-lg" alt="simple d'utilisation">
             </div>
             <div class="order-1 md:order-2">
                 <div class="text-6xl mb-6">✨</div>
