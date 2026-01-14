@@ -63,48 +63,44 @@
             </div>
         </div>
 
-        <div class="space-y-4 h-[calc(100vh-200px)] overflow-y-auto p-2">
+        <div class="space-y-3 lg:space-y-4 h-auto lg:h-[calc(100vh-200px)] overflow-y-auto p-1 lg:p-2">
             {% for ride in rides %}
             <article
-                class="ride-card bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-4 transition-all duration-200 hover:shadow-lg cursor-pointer"
+                class="ride-card bg-[oklch(96.7%_0.003_264.542)] shadow-md rounded-lg p-3 lg:p-4 transition-all duration-200 hover:shadow-lg cursor-pointer"
                 data-start-lat="{{ ride.start_location.lat }}" data-start-lon="{{ ride.start_location.lon }}"
                 data-end-lat="{{ ride.end_location.lat }}" data-end-lon="{{ ride.end_location.lon }}"
                 data-start-name="{{ ride.start_location.name }}" data-end-name="{{ ride.end_location.name }}">
-                <div class="md:flex md:items-center gap-4">
+                <div class="md:flex md:items-center gap-3 lg:gap-4">
                     <div
-                        class="flex items-center justify-center w-20 h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
+                        class="flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-indigo-50 text-indigo-700 rounded-lg flex-col shrink-0">
                         <span class="text-xs font-bold uppercase">{{ ride.get_month() }}</span>
                         <span class="text-2xl font-bold">{{ ride.get_day() }}</span>
                         <span class="text-xs">{{ ride.get_year() }}</span>
                     </div>
 
-                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 px-2 mt-4 md:mt-0">
-                        <div>
-                            <div class="text-sm text-slate-500">Chauffeur</div>
-                            <div class="font-medium text-slate-900">
+                    <div class="flex-1 grid grid-cols-2 gap-x-2 gap-y-1 lg:gap-3 px-1 lg:px-2 mt-3 md:mt-0">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xs lg:text-sm text-slate-500">Chauffeur:</span>
+                            <span class="font-medium text-sm text-slate-900 truncate">
                                 <a href="{{ url_for('main.public_profile', upjv_id=ride.driver.upjv_id) }}"
                                     class="hover:underline" onclick="event.stopPropagation()">
                                     {{ ride.driver.to_str() }}
                                 </a>
-                            </div>
+                            </span>
                         </div>
-                        <div>
-                            <div class="text-sm text-slate-500">Places</div>
-                            <div class="font-medium text-slate-900">{{ ride.seats }} libre(s)</div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xs lg:text-sm text-slate-500">Places:</span>
+                            <span class="font-medium text-sm text-slate-900">{{ ride.seats }}</span>
                         </div>
-                        <div>
-                            <div class="text-sm text-slate-500">Départ</div>
-                            <div class="font-medium text-slate-900 leading-tight">
-                                {{ ride.start_location.name }}
-                                <span class="block text-xs text-slate-600 mt-1">{{ ride.get_departure_time() }}</span>
-                            </div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xs lg:text-sm text-slate-500">Départ:</span>
+                            <span class="font-medium text-sm text-slate-900 truncate">{{ ride.start_location.name }}
+                                <span class="text-xs text-slate-500">({{ ride.get_departure_time() }})</span></span>
                         </div>
-                        <div>
-                            <div class="text-sm text-slate-500">Arrivée</div>
-                            <div class="font-medium text-slate-900 leading-tight">
-                                {{ ride.end_location.name }}
-                                <span class="block text-xs text-slate-600 mt-1">{{ ride.get_arrival_time() }}</span>
-                            </div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xs lg:text-sm text-slate-500">Arrivée:</span>
+                            <span class="font-medium text-sm text-slate-900 truncate">{{ ride.end_location.name }} <span
+                                    class="text-xs text-slate-500">({{ ride.get_arrival_time() }})</span></span>
                         </div>
                     </div>
 
