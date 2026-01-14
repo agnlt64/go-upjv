@@ -10,7 +10,6 @@ from app.models import User, Ride, Review
 from app.models.location import Location
 from app.utils import error, success, user_from_request, vehicle_from_request, update, check_password, distance
 from app import db
-from flask import jsonify, request
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
@@ -265,13 +264,13 @@ def update_ride(ride_id):
     ride = Ride.query.get_or_404(ride_id)
     
     if ride.driver_id != current_user.id:
-        return jsonify({'success': False, 'message': 'Vous ne pouvez modifier que vos propres trajets.'}), 403
+        return error('Vous ne pouvez modifier que vos propres trajets.', 403)
     
     if ride.is_cancelled:
-        return jsonify({'success': False, 'message': 'Impossible de modifier un trajet annulé.'}), 400
+        return error('Impossible de modifier un trajet annulé.', 400)
     
     if ride.date < datetime.now():
-        return jsonify({'success': False, 'message': 'Impossible de modifier un trajet passé.'}), 400
+        return error('Impossible de modifier un trajet passé.', 400)
     
     # Get form data
     ride_date = request.form.get('ride_date')
@@ -289,22 +288,22 @@ def update_ride(ride_id):
         try:
             new_datetime = datetime.strptime(f"{ride_date} {departure_time}", "%Y-%m-%d %H:%M")
             if new_datetime < datetime.now():
-                return jsonify({'success': False, 'message': 'La date ne peut pas être dans le passé.'}), 400
+                return error('La date ne peut pas être dans le passé.', 400)
             ride.date = new_datetime
         except ValueError:
-            return jsonify({'success': False, 'message': 'Format de date invalide.'}), 400
+            return error('Format de date invalide.', 400)
     
     # Update seats
     if seats:
         try:
             new_seats = int(seats)
             if new_seats < len(ride.passengers):
-                return jsonify({'success': False, 'message': f'Impossible de réduire à {new_seats} places, {len(ride.passengers)} passagers sont déjà inscrits.'}), 400
+                return error(f'Impossible de réduire à {new_seats} places, {len(ride.passengers)} passagers sont déjà inscrits.', 400)
             if new_seats < 1:
-                return jsonify({'success': False, 'message': 'Le nombre de places doit être au moins 1.'}), 400
+                return error('Le nombre de places doit être au moins 1.', 400)
             ride.seats = new_seats
         except ValueError:
-            return jsonify({'success': False, 'message': 'Nombre de places invalide.'}), 400
+            return error('Nombre de places invalide.', 400)
     
     # Update start location
     if start_lat and start_lon and start_name:
@@ -320,7 +319,7 @@ def update_ride(ride_id):
     
     db.session.commit()
     
-    return jsonify({'success': True, 'message': 'Trajet mis à jour avec succès.'})
+    return success('Trajet mis à jour avec succès.')
 
 @api.route('/rides/<int:ride_id>/passengers')
 @login_required
